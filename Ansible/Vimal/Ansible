@@ -1,0 +1,90 @@
+ed Hat Enterprise Linux Automation with Ansible (RH294)
+
+Ansible is a configuratio management tool 
+
+Why Ansible:
+-Automation
+-Configuration management
+-Declarative approach
+
+Use Case 1: Install Apache Server
+Use Case 2: Interactive Inputs
+Use Case 3: Make use of Variables
+  
+ansible_facts - predefined variable by ansible to gather facts
+ansible_facts ['system']
+debug - To print messages
+ansible all -m debug -a "msg=hi" setup
+ansible all -m setup
+      
+copy module copies file statically.
+template module supports dynamic values, variables.
+ 
+
+
+Use Case 4: HTTP Authentication
+Manual Setup:
+cd /etc/httpd/conf.d
+vi /etc/httpd/conf/httpd.conf >134
+
+htpasswd -c /etc/www.passwd vimal
+cat /etc/www.passwd vimal
+
+vi /var/www/html/.htaccess > 
+authname "website"
+authType basic
+authuserFile /etc/www.passwd
+require valid-user
+
+
+Use Case 5: Load Balancer And Reverse Proxy:
+
+Manually onfigure 2 Web Servers:
+index.html
+<pre>
+<?php>
+ print '/usr/sbin/ipconfig
+?>
+</pre>
+
+yum install php -y
+
+cd /etc/yum.repos.d/
+
+RoundRobin: Loab balancer behaviour.
+
+Step1: Install haproxy
+Step2: 
+Configure reverse proxy : vi /etc/haproxy/haproxy.cfg
+bind: 8080
+Backend App: IP:PortNumber
+
+
+Use Case 6: Configure Docker Using Ansible
+Step1: Configure yum repo for docker
+Step2: install docker
+Step3: Start Service
+
+
+
+Use Case 6: Jinja
+- Jinja is a pyhton library/framework.
+
+
+
+Use Case 7:
+ksu        Kerberos substitute user                                                                                                                      
+pbrun      PowerBroker run                                                                                                                               
+enable     Switch to elevated permissions on a network device                                                                                            
+sesu       CA Privileged Access Manager                                                                                                                  
+pmrun      Privilege Manager run                                                                                                                         
+runas      Run As user                                                                                                                                   
+sudo       Substitute User DO                                                                                                                            
+su         Substitute User                                                                                                                               
+doas       Do As user                                                                                                                                    
+pfexec     profile based execution                                                                                                                       
+machinectl Systemd's machinectl privilege escalation                                                                                                     
+dzdo       Centrify's Direct Authorize 
+
+
+ansible webserver -m command -a id --become --become-user root --become-method sudo
