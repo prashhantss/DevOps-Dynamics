@@ -1,0 +1,37 @@
+node
+{
+def mavenHome = tool name:"maven 3.6.2"
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '2', daysToKeepStr: '', numToKeepStr: '2')), pipelineTriggers([pollSCM('* * * * *')])])
+stage('CheckoutCode')
+{
+git branch: 'development', credentialsId: '521c898e-f4c6-41cd-9e8e-19d2bc740097', url: 'https://github.com/jenkins-repo/maven-web-application.git'
+}
+
+stage('MavenBuild')
+{
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+stage('SonarScan')
+{
+sh "${mavenHome}/bin/mvn sonar:sonar"
+}
+
+stage('NexusDeploy')
+{
+sh "${mavenHome}/bin/mvn deploy"
+}
+
+stage('TomcatDeploy')
+{
+    sshagent(['92a7289e-12f8-4ffd-9481-ea0fea0b7ad7']) 
+    {
+        sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@3.86.212.61://opt/tomcat/webapps"
+}
+stage('SendEmail')
+{
+    mail bcc: '', body: 'Build $(BuildNumber) Over ', cc: 'prashhantsspatil@gmail.com', from: '', replyTo: '', subject: 'This is a pipeline Project', to: 'prashhantss@gmail.com'
+}
+}
+
+}

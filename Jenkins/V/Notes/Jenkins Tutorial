@@ -1,0 +1,149 @@
+Jenkins Build Trigger:
+- Trigger builds remotely (e.g., from scripts):
+            - http://13.232.156.229:8080/job/deployweb/build?token=Prashant
+            - curl http://admin:admin@13.232.156.229:8080/job/deployweb/build?token=Prashant
+
+- Build after other projects are built
+- Build periodically : Min Hours Date Month Day, Always run the job
+- GitHub hook trigger for GITScm polling
+- Poll SCM : Always check with github if any update run the job
+
+* Ngrok is a tool that allows developers to expose a local development server to the internet.
+
+Distributed Cluster: Master/Slave Architecture 
+- Execute concurrent builds if necessary: Run job multiple times
+- JNLP for windows Slave connectivity.
+Windows Node: 
+- Launch method: Launch agent by connecting it to master
+
+Maven:
+
+- maven helps to download all the dependencies required for package.
+- Mantains entire lifecycle of code.
+
+----------------------------------------------------------------
+
+Jenkins 7:
+- mvn compile, test, package
+1. git checkout
+2. mvn test
+3. surefire get report: graph : Publish Junit Test (target/surefire-reports/*.xml)
+4. If test fail: Email
+5. mvn package
+6. deploy: java -jar target/*.jar
+7. Archive the artifacts.
+----------------------------------------------------------
+Jenkins 8:
+
+Dynamic Resource Provisioning:
+- Setup Slave Node.
+- Install docker in slave node.
+- Enable TCP for docker
+vi /usr/lib/systemd/system/docker.service : 
+    ExecStart=/usr/bin/dockerd -H fd:// -H tcp://172.31.1.237:2376 --containerd=/run/containerd/containerd.sock $OPTIONS $DOCKER_STORAGE_OPTIONS $DOCKER_ADD_RUNTIMES
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock
+
+- Install docker plugin
+- Configure Docker Node : tcp://172.31.1.200:2376
+- vimal13/jenkins-slave-maven
+- Create a job and run the job.
+---------------------------------------------------------------
+
+Jenkins 9: Build And Deploy
+0: Trigger
+1: git clone
+2: java code : package using maven
+3: Custom image : Dockerfile>usermod -aG docker jenkins: Code: OS: Java: jar
+4: Registry: docker push
+
+ CloudBees Docker Build and Publish plugin Version 1.4.0
+ Docker plugin Version 1.3.0 
+ Git plugin Version 5.0.0 
+ Maven Integration plugin Version 3.21 
+----------------------------------------------------
+ Jenkins 10: Pipeline
+
+ Downstream and Upstream Job
+
+ Build after other projects are built
+ Delivery Pipeline Plugin Version 1.4.2 
+ Build Pipeline Version 1.5.8
+ 
+--------------------------------------------------
+ Jenkins 11: Kubernetes Integration
+
+Setup Minikube
+Start minikube 
+kubectl get pods
+kubectl run --image=httpd mypod1
+
+Configure Kubernetes Cloude Node:
+- Kubernetes Credintials : Secrete File : Test Connection
+- Jenkins URL
+- pod label: jenkins=slave
+- pod template - pod label : name=mypod, label=pod1
+- Create freestyle job and run and check in K8 for new pods.
+- Configure global security : Agents> Fixed=50000
+- Kubernetes Cloud: Jenkins Tunnel=IP:50000
+------------------------------------------------------------
+
+Jenkins 12- Job As A Code
+https://jenkinsci.github.io/job-dsl-plugin/#
+Plugin: Job DSL
+- SeedJob : Freestyle
+- Build : Process Job DSLs
+
+------------------------------------------------------------
+
+Jenkins 13: Pipeline As A Code
+Plugin: Pipeline as Code with Jenkins
+
+Git checkout
+Maven Build : Worker Agent 1 : Dynamic
+Maven Test : Worker Agent 2 : Dynamic
+Deploy
+------------------------------------------------------------
+Multi-Configuration Project:
+ 
+Jenkins 14:
+- Jenkinsfile2
+- jenkinsfile3
+------------------------------------------------------------
+
+Jenkins 15:
+- jenkinsfile4, Stash and Unstash
+- Job Variables / System variables : Csn use directly
+- User defined variables : echo "${params.X}"
+
+------------------------------------------------------------
+
+Jenkins 16:
+- Each branch will have its own Jenkinsfile and configurations.
+- Plugin: Docker Pipeline
+
+------------------------------------------------------------
+
+Jenkins 17:
+- Configure Global Security : Jenkins own used data base
+- Plugin: Role Based Access Strategics
+- Create users
+- create roles
+- Create Items
+- manage/assign roles
+------------------------------------------------------------
+Jenkins 18: Continuous Deployment
+
+- Create Jenkinsfile
+- deploy.yml
+- get kube config file
+   54  curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.24.9/2023-01-11/bin/linux/amd64/kubectl
+   55  chmod +x ./kubectl
+   56  mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+   57  echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+   58  kubectl version --short --client
+   59  kubectl get pods
+- 'kubectl get pods --kubeconfig /admin.conf' run this command in jenkins file
+- kubectl apply -f deploy.yml --kubeconfig /admin.conf
+-  Add creditials for kubernetes deploy plugin.
+
+------------------------------------------------------------

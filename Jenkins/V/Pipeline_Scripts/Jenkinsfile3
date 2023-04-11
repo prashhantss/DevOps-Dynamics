@@ -1,0 +1,24 @@
+pipeline {
+    tools {
+        maven 'maven 1.0'
+    } 
+    agent {
+        node {
+            label 'java-docker-slave'
+        }
+    }
+    
+    stages {
+
+        stage('gitscm') {
+            steps {
+                echo "Downloading Source Code"
+                git 'https://github.com/prashhantss/simple-java-maven-app.git'
+                sh 'mvn package'
+                sh 'java -jar target/*.jar'
+                archiveArtifacts artifacts: 'target/*.jar', followSymlinks: false
+            }
+        }
+
+    }
+}

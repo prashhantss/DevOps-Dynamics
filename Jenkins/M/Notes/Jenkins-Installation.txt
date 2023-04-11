@@ -1,0 +1,25 @@
+yum update -y  //update linux server s]packages
+
+yum install java-11* -y        //install java 11
+
+find /usr/lib/jvm/java-11* | head -n 3  
+
+vi ~/.bash_profile
+	# User specific environment and startup programs
+	JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64
+	PATH=$PATH:$HOME/bin:$JAVA_HOME
+	
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+yum install jenkins -y
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+
+
+sudo systemctl status jenkins
+
+Open Custom TCP 8080 port ,HTTP, HTTPS, SSH.
+
+Public IP:8080
+
+cat /var/lib/jenkins/secrets/initialAdminPassword

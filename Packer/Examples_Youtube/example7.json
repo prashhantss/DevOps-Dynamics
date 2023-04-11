@@ -1,0 +1,31 @@
+{
+"variables": {
+	"description": "myWebServer",
+	"version": ""
+},
+"builders": [
+        {
+        "type": "amazon-ebs",
+        "access_key": "AKIAXDWJJ3Y32DZFZLNW",
+        "secret_key": "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",
+        "region": "ap-south-1",
+        "ami_name": "{{user `description`}}-{{user `version`}}",
+        "source_ami": "ami-02eb7a4783e7e9317",
+        "instance_type": "t2.micro",
+        "ssh_username": "ubuntu"
+        }
+],
+"provisioners": [
+    {
+        "type": "shell",
+        "inline": ["sleep 30", "sudo apt update", "sudo apt install nginx -y"]
+        }
+    ],
+        "post-processors": [
+	{
+        "type": "manifest",
+        "output": "{{user `description`}}-{{user `version`}}.json"
+    }
+    ]
+
+}

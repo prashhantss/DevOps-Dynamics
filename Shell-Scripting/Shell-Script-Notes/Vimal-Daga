@@ -1,0 +1,36 @@
+#!- hashbang/shebang
+
+
+For loop:
+
+for i in a b c d e; do echo $i; done
+u="a b c t y p"
+for i in $u; do echo $i; done
+
+#!/bin/bash
+user=$1
+useradd $user
+echo "Hello $user"
+
+
+#!/bin/bash
+user=$@
+for j in $user
+do
+useradd $j
+echo "Hello $j"
+
+x=$(date)
+for i $(cat db.csv) ; do echo $i; done
+
+
+
+#!/bin/bash
+user=$(cat db.csv)
+for j in $user
+do
+useradd $j
+echo "Hello $j"
+
+
+

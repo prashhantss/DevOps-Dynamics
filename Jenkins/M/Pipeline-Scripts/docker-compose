@@ -1,0 +1,43 @@
+node{
+    def buildNumber = BUILD_NUMBER
+    def mavenHome= tool name:"Maven", type:"maven"
+    
+    
+    stage("Git Clone")
+    {
+    git credentialsId: '521c898e-f4c6-41cd-9e8e-19d2bc740097', url: 'https://github.com/prashhantssorg/spring-boot-mongo-docker.git'
+    }
+    
+    
+    stage("Maven Build")
+    {
+    sh "${mavenHome}/bin/mvn clean package"
+    }
+    
+     stage("Docker Build"){
+    sh "docker build -t prashhantss/spring-boot-mongo-docker:${buildNumber} ."
+    }
+    
+    
+    stage ("Docker Login And Push") {
+    withCredentials([string(credentialsId: 'PrashhantssHub', variable: 'PrashhantssHub')]) {
+    sh "docker login -u prashhantss -p ${PrashhantssHub}"
+    }
+    sh " docker push prashhantss/spring-boot-mongo-docker:${buildNumber}"
+    }
+    
+    stage("Remove Local Image")
+    {
+    sh "docker rmi -f dockerhandson/spring-boot-mongo-docker"
+    }
+    
+    
+    stage ("Cluster Deployment")
+    {
+    sshagent(['38e5c2c3-b7ea-4d79-b687-616913b97295']) {
+    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.82.206 docker network create -d overlay springappnetwork"
+    sh 'scp -o StrictHostKeyChecking=no  docker-compose.yml ubuntu@172.31.82.206:'
+    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.82.206 docker stack deploy --prune --compose-file docker-compose.yml springboot'
+    }
+    }
+}

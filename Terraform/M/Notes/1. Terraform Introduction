@@ -1,0 +1,265 @@
+Terraform:
+- open-source, infrastructure as code software (IaC) tool, created by HashiCorp and written in the Go programming language.
+- Terraform code is written in the HashiCorp Configuration Language (HCL) in files with the extension .tf
+
+Infrastructure as code: 
+- process of managing infrastructure in a file or files, rather than manually configuring resources in a user interface (UI).
+
+Terraform vs CloudFormation
+
+- Terraform:
+    Developed by Hashicrop
+	  Supports only AWS.
+	  Uses Hashicrop language(HCL).
+- CloudFormation:
+	  Developed by AWS
+	  Support multiple cloud providers.
+	  Uses JASON or YAML.
+	
+Terraform Vs Ansible
+
+- Terraform:
+	  Infrastructure as code.
+- Ansible:
+	  Configuration management tool.
+
+
+TERRAFORM COMMANDS:
+
+- terraform init : 
+  - The terraform init command is used to initialize a working directory containing Terraform configuration files.
+  - This is the first command that should be run after writing a new Terraform configuration.
+
+- terraform fmt:
+  - The terraform fmt command is used to rewrite Terraform configuration files to a canonical format and style.
+
+- terraform validate:
+  - The terraform validate command validates whether a configuration is syntactically valid or not.
+
+- terraform plan: 
+  - The terraform plan command is used to create an execution plan. 
+  - This command is a convenient way to check whether the execution plan for a set of changes.
+  - Matches your expectations without making any changes to real resources or to the state.
+
+- terraform apply: 
+  - terraform apply to actually create the infrastructure on AWS.
+		terraform apply -auto-approve
+
+- terraform destroy:
+  - The terraform destroy command is used to destroy the Terraform-managed infrastructure.
+
+
+The Terraform language supports three different syntaxes for comments:
+a) # begins a single-line comment, ending at the end of the line.
+b) // also begins a single-line comment, as an alternative to #.
+c) /* and */ are start and end delimiters for a comment that might span over multiple lines.
+
+
+
+Prerequisites:
+
+Create IAM user with required permissions.
+
+---------------------------------------------------------------------------------------------------
+Environment Variables:
+
+provider "aws" {
+  region     = "us-east-1"
+  // access_key = "AKIAXDWJJ3Y37OFIW5PH"
+  // secret_key = "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"
+}
+
+resource "aws_instance" "AWSEC2Instance" {
+  count           = "5"
+  ami             = "ami-0b5eea76982371e91"
+  instance_type   = "t2.micro"
+  security_groups = ["launch-wizard-1"]
+  key_name        = "prashhantss"
+  tags = {
+    Name = "FromTerraform"
+  }
+}
+
+export AWS_ACCESS_KEY_ID="AKIAXDWJJ3Y37OFIW5PH"
+export AWS_SECRET_ACCESS_KEY="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"
+export AWS_DEFAULT_REGION="us-east-1"
+
+
+---------------------------------------------------------------------------------------------------
+Variable Demo:
+
+
+vars.tf
+
+variable "ami" {
+  default = "ami-0b5eea76982371e91"
+  }
+  variable "instance_type" {
+  default = "t2.micro"
+  }
+   
+
+
+varsdemo.tf
+  
+provider "aws" {
+  region = "us-east-1"
+}
+resource "aws_instance" "WebServer" {
+  ami = "${var.ami}"
+  instance_type = "${var.instance_type}"
+  key_name = "prashhantss"
+  tags = {
+  Name = "VarDemoTF"
+  }
+}
+
+
+
+------------------------------------------------------------------------------------------------- 
+
+
+Create instances with different names.
+
+vars.tf
+
+variable "ami" {
+  description = "AMI NAME"
+  default     = "ami-0b5eea76982371e91"
+}
+
+variable "instance_type" {
+  description = "INSTANCE TYPE"
+  default     = "t2.micro"
+}
+
+variable "instances" {
+  description = "NUMBER OF INSTANCE"
+  default     = "2"
+}
+ 
+ 
+
+
+ count.tf
+ 
+ provider "aws" {
+  region = "us-east-1"
+}
+resource "aws_instance" "WebServer" {
+  count           = "${var.instances}"
+  ami             = "${var.ami}"
+  instance_type   = "${var.instance_type}"
+  key_name        = "prashhantss"
+  security_groups = ["launch-wizard-1"]
+
+  tags = {
+    Name = "VarDemoTF-${count.index}"
+  }
+}
+
+---------------------------------------------------------------------------------------------------
+User Data:
+
+
+
+FileName: var.tf
+
+variable "ami"{
+  description = "AMI Name..."
+  default = "ami-0b5eea76982371e91"
+  }
+  variable "instance_type"{
+  description = "Instance Type..."
+  default = "t2.micro"
+  }
+
+
+
+FileName: userdata.tf
+
+provider "aws" {
+  region = "us-east-1"
+  }
+  
+  resource "aws_instance" "AWSServer" {
+   ami = "${var.ami}"
+   instance_type = "${var.instance_type}"
+   key_name = "prashhantss"
+   security_groups = ["launch-wizard-1"]
+   user_data = "${file("installapacheserver.sh")}"
+   tags = {
+   Name = "Terraform Server"
+  }
+  }
+
+
+apache.sh
+
+#!/bin/bash
+sudo yum install httpd -y
+sudo systemctl enable httpd
+sudo systemctl start httpd
+
+chmod u+x apache.sh
+systemctl status httpd
+
+---------------------------------------------------------------------------------------------------
+Create Security Group:
+
+
+provider "aws" {
+  region = "us-east-1"
+  }
+  resource "aws_security_group" "Prashhantss" {
+  name = "SecurityGroups11"
+  description = "Allow TLS inbound traffic"
+  vpc_id = "vpc-027d8cef8d35a5908"
+  ingress {
+  description = "TLS from VPC"
+  from_port = 443
+  to_port = 443
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+  from_port = 0
+  to_port = 0
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+  Name = "SecurityGroups1"
+  }
+  }
+
+------------------------------------------------------------------------------------------------
+
+FileName: iam.tf
+
+
+provider "aws" {
+region = "eu-west-2"
+}
+resource "aws_iam_user" "IAMUSERS" {
+name = ["prashhantss1"]
+}
+
+
+FileName: vars.tf
+
+variable "user_names" {
+description = "Create IAM users"
+type = list(string)
+default = ["prashhasp", "manan", "patil"]
+}
+
+FileName: main.tf
+
+provider "aws" {
+region = "eu-west-2"
+}
+resource "aws_iam_user" "IAMUsers" {
+count = length(var.user_names)
+name = var.user_names[count.index]
+}

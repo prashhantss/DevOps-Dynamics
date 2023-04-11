@@ -1,0 +1,53 @@
+pipeline {
+    tools {
+        maven 'maven 1.0'
+    } 
+    parameters {
+        string(name: 'x' , defaultValue:'CICD' , description: 'Test' )
+    }
+    agent none
+    
+    stages {
+
+        stage('gitscm') {
+        agent {
+                label 'java-docker-slave1'
+            }
+   
+            steps {
+                echo "{params.x}"
+                echo "Downloading Source Code"
+                git 'https://github.com/prashhantss/simple-java-maven-app.git'
+                sh "ls -l"
+                sh "pwd"
+                stash includes: 'pom.xml' , name: 'sourcecode'
+                echo "{env.GIT_BRANCH}"
+            }
+        }
+
+        stage('packaging') {
+        agent {
+                label 'java-docker-slave2'
+        }
+            steps {
+                echo "Building Source Code Using Maven"
+                unstash 'sourcecode'
+                sh 'mvn package'
+                stash includes: 'target/*.jar' , name: 'jarfile'
+            }
+        }
+
+        stage('deploying') {
+        agent {
+                label 'java-docker-slave2'
+        }
+            steps {
+                echo "Building Source Code Using Maven"
+                unstash 'jarfile'
+                sh 'java -jar *.jar'
+                
+            }
+        }
+
+    }
+}

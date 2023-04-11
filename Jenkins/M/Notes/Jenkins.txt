@@ -1,0 +1,253 @@
+Continuous Integration: process of automating the build and testing of code every time a team member commits changes to version control.
+
+Benifits of CI:
+	-	Detects bug as soon as possible.
+	-	Maintains history for reference
+	-	No integration step in the Software Development lifecycle
+	-	A deployable system at any given point
+
+
+Continuous Delivery: 
+	-	Code Done > Unit Tests > Integrate > Acceptance Test > Mannual Deployment To the Production
+	-	External Projects
+	
+Continuous Delivery: 
+	-	Code Done > Unit Tests > Integrate > Acceptance Test > Auto Deployment To the Production
+	-	In house / Internal Projects
+	
+	
+Jenkins is an open-source java-based continuous integration tool.
+	
+Key Terminology:
+- Integrate: Combine code
+- Build: Compile the code
+- Test: Test code in all environments.
+- Deliver: Handing product to the client.
+- Deploy: Installing product in clients environment.
+
+
+What Jenkins can do?
+- Integrate with many different Version Control Systems (GitHub, CVS, SVN, TFS ...)
+- Generate test reports (JUnit)
+- Push the builds to various artifact repositories
+- Deploys directly to production or test environments
+- Notify stakeholders of build status (Through Email)
+
+Benefits of Jenkins
+- Its an open source tool with great community support.
+- Easy to install and It has a simple configuration through a web-based GUI, which speeds up the Job
+- It has around 1000+ plugins to ease your work. If a plugin does not exist, just code it up and share with the community (https://plugins.jenkins.io/).
+- Its built with Java and hence, it is portable on all major platforms.
+- Good documentation and enriched support articles/information available on internet which will help beginners to start easy.
+- Specifically, for a test only project, it is used to schedule jobs for regression testing without manual intervention and hence monitor infrastructural and functional health of a application. It can be used like a scheduler for integration testing and also can be used to validate new deployments/environments on a single click on a Build now button.
+
+
+Jenkin Editions:
+- Enterprise Edition- Hudson, Cloudbees Jenkins
+- Community Edition- Jenkins
+
+>>Freestyle Project>clean package sonar:sonar deploy
+Important Settings and Plugins:
+
+Add Timestamp to the console output:Timestamp In Console Outpu
+Delete Workspace before build starts: Delete existing project workspace and creates new
+Discard Old Builds: Delete old builds
+
+Automate Build trigger:
+Poll SCM: Min Hours DayofMonth Month DayOfWeek (1 Min= * * * * * ) > validates With commit ID
+
+Build Periodically:Min Hours DayofMonth Month DayOfWeek (1 Min= * * * * * ) Will not check for updates.
+
+Github Webhook:
+
+Disable Project: During Scheduled Maintainance.
+
+
+:-To generate test report install JACOCO plugin.
+Add Post Build Actions>Record Jacoco coverage report>Change build status and fail the build
+
+
+:- Email Notification
+smtp.gmail.com
+GMAIL ID/functionalmail id/service ID
+Password
+Port Number-25 (Non-Secure) (465-Secure)
+
+Manage Jenkins>Configure System>E-mail notification>Advanced>
+
+Manage Jenkins>Configure System>Extended E-mail notification>Advanced>
+
+smtp.gmail.com
+465>advanced>use ssl>Default recipient>Reply list>
+post build>Editable Email notification
+
+Jenkins Directory Structure: /var/lab/jenkins ..Home Directory
+jobs
+	job1
+		nextbuildnumber--file
+		builds--dir
+			build1
+			build2
+		log
+			build1
+			build2
+workspace
+	jobname-->SOurce Code
+	jobname@tmp
+USers
+	users.xml
+plugins
+	installed plugins
+nodes
+	master
+
+
+/var/log/jenkins..Logs directory.
+
+
+
+
+MAVEN PROJECT:
+
+Install Maven Integration Plugin
+
+Plugin Management
+• Deploy to container : Tomcat Deploy
+• Deploy WebLogic
+• Maven Integration : Maven Project Type
+• Safe Restart : 
+	http://18.205.239.115:8080/restart--Forcefully restart
+	
+	http://18.205.239.115:8080/safeRestart--Restart after running jobs completed
+	
+• Next Build Number : To change Next build number
+• JACOCO : To generate Test reports
+• SSH Agent : 
+• Email Extension : Editable email notification
+• SonarQube Scanner : When No POM.xml we can use 
+• Audit Trail Plugin : tail -f  audittrails.log.0
+tail -f  audittrails.log.0
+
+• Schedule Build : Schedule builds
+• Artifactory Plugin : Connect with artiffactory repo
+• Cloud Foundry : Connect with IBM Cloud
+• Blue Ocean : 
+• Publish Over SSH
+• ThinBackup
+• Build Name Setter : 
+• Convert To Pipeline
+
+
+
+External Plugins Installation:
+Urban Code Deploy
+
+Port Number Change:
+
+Jenkins
+Linux: /etc/sysconfig/jenkins
+Ubuntu: /etc/default/jenkins
+
+Build with parameters:
+Instead of multiple jobs we can use build parameters to build different environment.
+ 
+
+Create View:
+
+
+Jenkins Security:
+• Create Users (Default Admin)
+• Provide the specific access Jenkins
+• Provide the access to specific access to specific projects
+
+
+
+PIPELINE PROJECT:
+
+1. Scripted
+
+127 Error Code: Command Not Found
+
+
+2. DELARATIVE
+
+
+
+
+MULTIBRANCH PIPELINE:
+- Each branch must have pipeline script
+
+
+
+Jenkins Backup:
+ThinBackup
+
+
+JENKINS MASTER SLAVE ARCHITECTURE:
+ - Java must be installed in slave.
+ - No need to install jenkins in slave.
+ - All Job information will be stored in Master.
+ - Source code will be stored in the slave.
+
+
+
+Jenkins Server Migration:
+
+By using same version of jenkins in new server.
+Rename new server working directory
+copy old server files to new server.
+
+OR
+
+By using jo import plugin
+
+
+
+
+Jenkins CLI
+
+http://54.234.115.31:8080/cli/
+
+java -jar jenkins-cli.jar -auth admin:password -s http://18.205.239.115:8080/ help
+java -jar jenkins-cli.jar -auth admin:11535fc4fa44550f5afc0b70789c55f48d -s http://18.205.239.115:8080/ build prashhantss
+
+#!bin/bash
+java -jar ./jenkins-cli.jar -auth admin:11535fc4fa44550f5afc0b70789c55f48d -s http://18.205.239.115:8080/ list-jobs
+echo "Displayed...."
+
+Upstream and Downstream Jobs:
+Build after other projects are built
+
+can write a pipeline script to trigger multiple jobs.
+
+
+Jenkins using Docker
+
+node{
+    def buildNumber = BUILD_NUMBER
+    stage("Git Clone"){
+        git url: 'https://github.com/prashhantss/java-web-app-docker.git', 
+        branch: 'master'
+    }
+    
+    stage("Maven Build"){
+    def mavenHome= tool name:"Maven", type:"maven"
+    sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage("Docker Build"){
+    sh "docker build -t prashhantss/java-web-app-docker:${buildNumber} ."
+    }
+    stage ("Docker Login And Push") {
+        
+    withCredentials([string(credentialsId: 'PrashhantssHub', variable: 'PrashhantssHub')]) {
+    sh "docker login -u prashhantss -p ${PrashhantssHub}"
+    }
+    sh " docker push prashhantss/java-web-app-docker:${buildNumber}"
+    }
+    stage ("Deploy Docker Image") {
+    sshagent(['DockerDevServerSSH']) {
+    sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.87.148 docker rm -f javawebappcontainer || true"
+    sh "ssh -o StrictHostKeyChecking=no ec2-user@172.31.87.148 docker run -d -p 8080:8080 --name javawebappcontainer prashhantss/java-web-app-docker:${buildNumber}" 
+    }
+    }
+}

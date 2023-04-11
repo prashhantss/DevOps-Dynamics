@@ -1,0 +1,31 @@
+node{
+    def buildNumber = BUILD_NUMBER
+    def mavenHome= tool name:"Maven", type:"maven"
+    stage("Git Clone")
+    {
+    git credentialsId: '521c898e-f4c6-41cd-9e8e-19d2bc740097', url: 'https://github.com/prashhantss/java-web-app-docker.git'
+    }
+    stage("Maven Build")
+    {
+    sh "${mavenHome}/bin/mvn clean package"
+    }
+    
+     stage("Docker Build"){
+    sh "docker build -t prashhantss/java-web-app-docker:${buildNumber} ."
+    }
+    stage ("Docker Login And Push") {
+        
+    withCredentials([string(credentialsId: 'PrashhantssHub', variable: 'PrashhantssHub')]) {
+    sh "docker login -u prashhantss -p ${PrashhantssHub}"
+    }
+    sh " docker push prashhantss/java-web-app-docker:${buildNumber}"
+    }
+    
+    stage ("Cluster Deployment")
+    {
+    sshagent(['38e5c2c3-b7ea-4d79-b687-616913b97295']) {
+    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.82.206 docker service rm javawebapp || true"
+    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.82.206 docker service create --name javawebapp -p 8080:8080 --replicas 2 prashhantss/java-web-app-docker:${buildNumber}"
+    }
+    }
+}

@@ -1,0 +1,44 @@
+{
+"builders": [
+        {
+        "type": "amazon-ebs",
+        "access_key": "AKIAXDWJJ3Y32DZFZLNW",
+        "secret_key": "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",
+        "region": "ap-south-1",
+        "ami_name": "ubuntu-nginx-project4",
+        "source_ami": "ami-02eb7a4783e7e9317",
+        "instance_type": "t2.micro",
+        "ssh_username": "ubuntu"
+        },
+{
+"type": "azure-rm",
+"client_secret": "ce4e19aa-b759-4d97-b463-8e16728f8c5a",
+"client_id": "e170fa6f-f1fa-4204-818b-4f6f2e248c0b",
+"subscription_id": "2c752b05-b3c9-47c0-ab2a-b868ed4cc0ed",
+
+"image_publisher": "Canonical",
+"image_offer": "UbuntuServer",
+"image_sku": "18.04-LTS",
+
+"location": "East-Us",
+"os_type": "Linux",
+"managed_image_name": "ubuntu-nginx-project5",
+"managed_image_resource_resource_group_name": "packer-rg",
+}
+],
+"provisioners": [
+    {
+        "type": "shell",
+        "script": "setup.sh"
+        },
+    {
+        "type": "file",
+        "source": "index.html",
+        "destination": "/tmp/"
+        },
+    {
+        "type": "shell",
+        "inline": ["sudo cp /tmp/index.html /var/www/html/"]
+        }
+    ]
+}

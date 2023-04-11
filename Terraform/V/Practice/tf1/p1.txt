@@ -1,0 +1,14 @@
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAXDWJJ3Y37XNAMLZR"
+  secret_key = "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"
+}
+
+resource "aws_instance" "p1" {
+  ami           = "ami-0d81306eddc614a45"
+  instance_type = "t2.micro"
+  tags = {
+    Environment = "dev"
+    Name        = "dev-1"
+  }
+}
