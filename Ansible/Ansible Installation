@@ -1,0 +1,53 @@
+ANSIBLE INSTALLATION
+
+1) Create Ansible User.
+yum update -y
+adduser ansible
+passwd ansible
+
+vi /etc/ssh/sshd_config
+PasswordAuthentication yes
+
+sudo visudo
+root    ALL=(ALL)       ALL
+ansible ALL=(ALL)      NOPASSWD:ALL
+
+sudo service sshd restart
+
+su ansible
+
+2) Install python and ansible.
+
+sudo yum update -y
+sudo wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum install epel-release-latest-7.noarch.rpm -y
+sudo yum update -y
+sudo yum install git python python-devel python-pip openssl ansible -y
+ansible --version
+sudo vi /etc/ansible/hosts	#Add Node IPs.
+172.31.84.130
+172.31.84.148
+
+ansible all -m ping
+
+sudo vi /etc/ansible/ansible.cfg  #record_host_keys=False
+host_key_checking = False
+
+sudo chown -R ansible:ansible /home/ansible
+sudo chown -R ansible:ansible /etc/ansible/
+
+sudo vi ~/pem1.pem
+chmod 400 ~/pem1.pem
+sudo vi hosts	#Add Node IPs.
+172.31.84.130 ansible_user=ec2-user ansible_ssh_private_key_file=~/pem1.pem
+172.31.84.148 ansible_user=ec2-user ansible_ssh_private_key_file=~/pem1.pem
+
+172.31.84.130 ansible_user=ansible ansible_password=prashhantsss
+172.31.84.148 ansible_user=ansible ansible_password=prashhantss
+
+ssh-keygen
+ssh-copy-id ansible@172.31.84.130
+ssh-copy-id ansible@172.31.84.148
+
+ansible --invenrory-file <path> -m <module>		#to make use of custom inventory.
+ansible <groupname/all/hostname> -m <module> -a <args>
