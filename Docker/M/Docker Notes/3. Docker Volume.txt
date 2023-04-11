@@ -1,0 +1,148 @@
+Best practices while deploying applications as a container.
+	- Developer should not hard code the configurations(Environment specific details like DB username/password...etc) in the code.
+	- We have externilize the configurations which are different for each environment(DEV, PROD, QA).
+	
+docker run -e MONGO_DB_HOSTNAME=mongo -e MONGO_DB_USERNAME=devdb -e MONGO_DB_PASSWORD=devdb@123
+docker run -d mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123
+
+Stateless:
+Statefull:
+
+
+Demo:
+
+Repo: spring-boot-mongo-docker #Pull source code repository. 
+
+mvn clean package #build package.
+
+docker build -t prashhantss/spring-boot-mongo:1 . #create image 
+
+docker network create -d bridge springappnetwork #create docker network		#-d:Network Driver
+ 
+docker run -d --name springapp -p 8080:8080 -e MONGO_DB_HOSTNAME=mongo -e MONGO_DB_USERNAME=devdb -e MONGO_DB_PASSWORD=devdb@123 --network springappnetwork prashhantss/spring-boot-mongo:1	#Create a container for frontend
+ 
+docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 --network springappnetwork mongo	#Create a container for DB
+ 
+#network-alias mongo
+
+docker rm -f mongo	#Deleting DB container
+ 
+***Mongo data will be available under /data/db	#reference: Mongo Database Image
+
+*** Types Of Docker Volumes.
+
+1) Local Volumes: Server File Systems
+	- Bind mounts
+	- Dcoker persistent volumes
+2) External(Network) Volumes
+
+
+1) Local Volumes:
+
+a) Bind Mounts: It's a file or folder from docker host/server. Which is mounted with container directly.
+
+		mkdir MongoDB
+*** Cannot bind local file or folder when container is running.
+		docker rm -f mongo
+		docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 -v /home/ubuntu/MongoDB:/data/db --network springappnetwork mongo		#Binding Local Folder With Container Volume.
+		docker exec mongo ls /data/db
+		docker rm -f mongo
+		docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 -v /home/ubuntu/MongoDB:/data/db --network springappnetwork mongo
+
+b) Docker Persistent Volumes: It's Rrecommended to use persistent volumes. So that it will maintain all volume information under docker working direcory(/var/lib/docker).
+
+		docker rm -f mongo
+		docker volume prune
+
+Volume Drivers:
+	-d local
+		docker volume create -d local mongodbvol		#Creating docker volume using local driver.
+		
+		docker volume ls
+		
+		docker volume inspect mongodbvol		#volume bind path(docker volume inspect mongodbvol/_data)
+		
+		docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 -v mongodbvol:/data/db --network springappnetwork mongo		#creating a container with persistent volume.
+		
+		docker volume ls	
+
+		docker inspect mongo
+		
+		docker volume inspect mongodbvol
+		
+		sudo ls /var/lib/docker/volumes/mongodbvol/_data
+		
+		docker rm -f mongo
+		
+		docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 -v mongodbvol:/data/db --network springappnetwork mongo			
+		#creating a container with persistent volume.
+
+
+-v mongodbvol:/data/db -v mongodbvol2:/data/config	#For mapping multiple volumes or folders
+
+
+
+2) External Volumes(Network Volumes):
+
+	docker volume ls
+
+	https://docs.docker.com/engine/extend/legacy_plugins/		
+
+rex-ray Plugin: A volume plugin which is written in Go and provides advanced storage functionality for many platforms including VirtualBox, EC2, Google Compute Engine, OpenStack, and EMC.
+
+	docker plugin install rexray/ebs EBS_ACCESSKEY=AKIAXDWJJ3Y3ZFPUG5NN EBS_SECRETKEY=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
+
+	docker volume create -d rexray/ebs mongodbebsvol
+
+	docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 -v mongodbebsvol:/data/db --network springappnetwork mongo
+
+	Access using HostServerIP:8080
+
+What is read only volumes? How we can attach volume as read only?
+
+	docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 -v mongodbebsvol:/data/db:ro --network springappnetwork mongo
+
+
+
+
+
+
+
+
+
+
+
+
+docker network create -d bridge springappnetwork #create docker network		#-d:Network Driver
+
+docker run -d --name springapp -p 8080:8080 -e MONGO_DB_HOSTNAME=mongo -e MONGO_DB_USERNAME=devdb -e MONGO_DB_PASSWORD=devdb@123 --network springappnetwork prashhantss/spring-boot-mongo:1	#Create a container for frontend
+ 
+docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123 --network springappnetwork mongo	#Create a container for DB
+
+
+
+
+
+
+
+ 
+docker run -d --name springapp -p 8080:8080 -e MONGO_DB_HOSTNAME=mongo -e MONGO_DB_USERNAME=devdb -e MONGO_DB_PASSWORD=devdb@123 --network springappnetwork prashhantss/spring-boot-mongo:1
+
+docker run -d --name mongo -e MONGO_INITDB_ROOT_USERNAME=devdb -e MONGO_INITDB_ROOT_PASSWORD=devdb@123
+
+
+ docker rm -f $(docker ps -qa)
+ 
+ *** -Xargs, -D
+
+*** CMD ["java" ,"-jar","./spring-boot-mongo.jar"]
+									java -jar app.jar -Dx [Java Command Line Arguments]
+
+								
+
+
+
+
+
+
+

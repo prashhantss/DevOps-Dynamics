@@ -1,0 +1,168 @@
+GitHub is a Source code management tool.
+SCM Tools: GitHub, GitLab, SVN, CVS, TFS
+
+git commands:
+
+Check git is installed on your system
+   git --version
+   
+Run following git commands to authorize git account and user ID
+   git config --global user.name “xxxx”
+   git config --global user.name
+
+   git config --global user.email “xxxx”
+   git config --global user.email
+   git config --global --list #to list out available user accounts 
+
+   git init ( Command to initialize git )
+   git status ( To check git status)
+   git add . (To add all new files)
+   git status
+   git reset <file>	#to get file from staging area to working area.
+   
+   git restore <file>  #to discard changes in working area.
+   git restore --staged <file> #to unstage
+   
+   git revert <commitid> #revert updated content and newly created files will be deleted from local repo. Only recent commit can be reverted.
+
+
+Use below commands to commit and push.
+   git commit -m “msg”
+   git commit -a -m "msg" # add and commit
+   git commit -m "msgt" File1 File2
+   git push -u “url” master -f
+
+Add Remote Repo:
+   git remote -v
+   git remote add origin https://github.com/prasshantss1/prashhantss1.git
+
+Get commit logs:
+  git log
+  git log --oneline
+  git show <CommitID> 
+  git show --pretty="" --name-only <CommitID>
+  
+Git Vs SVN
+- Git is DVCS        - SVN/CVS/TFS are VCS
+
+Logical Areas:
+---------------
+		-	Working Area - Untracked Files
+		-	Staging Area - Tracked Files
+		-	Local Repo
+    
+PAT- Personal Access Token
+
+Head: Head is pointer which points current branch name and latest commit ID.
+----------
+Branching:
+------------
+
+git branch #Lists available local Branches
+git branch -r #Lists available remote Branches
+git branch -a #Lists available all Branches
+git checkout -b <BranchName> #Create and Switch to the branch
+git checkout -b <branchName> <Branch> #create branch from current working branch
+git branch rename -m <OldName> <NewName>	#Rename branch, If not commited then content will be bresent in all the branches.
+master> git merge <BranchName> #Merge branch with master.
+git diff <BranchName>
+git push <AliasName> <BranchName>
+git push <AliasName> --all
+git branch -d <BranchName>
+git push <AliasName>  :<BranchName>
+.gitignore file: Ignores unwanted class files
+
+Tags:
+--------
+Branch					Tags
+---------				--------
+Mutable					Non-Mutable
+Created during developement		Created after production deployment
+Created in Repository			Created on master branch
+git branch				git tag
+git branch <BranchName>			git tag <tagname>
+git push <Alias> <Bname>		git push <Alias> tag <Tagname>
+git push <Alias> --all			git push <Alias> --tags
+git branch -d <Bname>			git tag -d tagname
+
+git status
+git branch (Dev, Master, Stage)
+git tag
+git tag fbv1.0.0
+git tag
+git push fb tag fbv1.0.0
+
+
+Git stash:
+----------
+When you run git stash, Git will save all the changes that you have made to tracked files in your working directory, including modifications to tracked files, as well as new files and staged changes. The command then resets your working directory to the last commit, so that you can work on something else.
+
+git stash list
+git stash save "Message"
+git stash apply	#latest backup will be applied
+git stash apply <StashName>
+git stash drop
+git stash drop <StashName>
+
+
+Git cherry-pick
+----------------
+git cherry-pick is a useful tool for selectively applying changes from one branch to another, but should be used with caution to avoid introducing conflicts or breaking the codebase.
+
+git cherry pick <CommitID>
+
+
+git clone
+
+git fetch+git merge=git pull
+
+SSH Keys:
+---------
+
+ssh -keygen #local 
+ls -la ~/.ssh
+Settings > add ssh key	#github
+ssh -T git@github.com
+git remote add alias sshurl
+git remote -v
+
+PAT:
+----
+Personal Access Token
+
+GitHub API:
+-----------
+Connect programatically 
+
+Shell script for copying access token
+
+shell script to create a repository in github
+echo "Creating the repo.."
+curl \
+ -X POST \
+ -u "prashhantss:<PAT> \
+ -H "Accept: application/vnd.github.v3+json" \
+ https://api.github.com/orgs/orgname/repos \
+ -d '{name":"<RepoName>"}'
+ 
+Pull Request:
+--------------
+
+
+Fork:
+------
+
+Branching Stratergy:
+---------------------
+
+git merge:
+--------
+- Is a non-destructive operation
+- Existing branches are not changed in any way
+- Creates a new merge commit in the feature branch
+
+git rebase:
+----------
+- Moves the entire feature branch to begin on the tip of the master branch
+- Re-writes the project history
+- We get much cleaner and linear project history

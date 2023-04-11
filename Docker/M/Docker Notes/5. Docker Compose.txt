@@ -1,0 +1,248 @@
+Docker Compose:
+	Docker compose is a tool using which we can deploy multicontainer applications.
+	Uses yaml file to compose dockers. Purely based on indentation.
+	
+YAML:
+
+project:
+  groupID: com.co
+  dependencies:
+  - dependency:
+	  groupID: javax.serverlet
+	  artifactID: java.serverlet-api
+	  version: 3.1.0
+  - dependency:
+	  groupID: org.springframework
+	  artifactID: spring-context
+	  version: 3.1.0
+
+- represents array
+
+YML-1
+
+version: '3.1'
+services:
+  springapp:
+    image: prashhantss/spring-boot-mongo:1
+	ports:
+	- 8080:8080
+	networks:
+	- springappnetwork
+	environment:
+	- MONGO_DB_HOSTNAME=mongo
+	- MONGO_DB_USERNAME=devdb
+	- MONGO_DB_PASSWORD=devdb@123
+	container_name: springappcontainer
+  
+  mongo:
+    image: mongo
+	environment:
+	- MONGO_INITDB_ROOT_USERNAME=devdb
+	- MONGO_INITDB_ROOT_PASSWORD=devdb@123
+	volumes:
+	- mongodbvol:/data/db
+	networks:
+	- springappnetwork
+volumes:
+  mongodbvol:				#create volume as 'mongodbvol' using local driver
+networks:
+  springappnetwork:			#create 'springappnetwork' using bridge driver
+    driver: bridge
+	
+----------------------------------------------------------------------------------------------------------------------------	
+	
+vi docker-compose.yml
+docker-compose config
+docker-compose up -d
+docker-compose down
+docker-compose stop
+docker-compose restart
+docker compose -f filename up -d
+docker compose ps
+
+
+Scope of compose commands is limited to YAML.
+
+
+------------------------------------------------------------------------------------------------------------------------------
+YML-2
+
+version: '3.2'
+
+services:
+  springapp:
+    image: prashhantss/spring-boot-mongo:1
+	ports:
+	- 8080:8080
+	networks:
+	- springappnetwork
+	environment:
+	- MONGO_DB_HOSTNAME=mongo
+	- Mongo_DB_USERNAME=devdb
+	- MONGO_DB_PASSWORD=devdb@123
+	container_name: springappcontainer
+  
+  mongo:
+    image: mongo
+	environment:
+	- MONGO_INITDB_ROOT_USERNAME=devdb
+	- MONGO_INITDB_ROOT_PASSWORD=devdb@123
+	volumes:
+	- mongodbvol:/data/db
+	networks:
+	- springappnetwork
+volumes:
+  mongodbvol:
+	external: true		#volume 'mongodbvol' must exist in server.
+networks:
+  springappnetwork:
+    external: true		#network 'springappnetwork' must exist in server.
+
+***If existing volume and network is not available then it will throw error.
+
+------------------------------------------------------------------------------------------------------------------------
+Docker compose file to use as common in all the environments.
+
+YML-3 - docker-compose.yml
+
+version: '3.3'
+services:
+  springapp:
+    image: prashhantss/spring-boot-mongo:1
+	ports:
+	- 9090:8080
+	networks:
+	- springappnetwork
+	container_name: springappcontainer
+
+  mongo:
+    image: mongo
+	volumes:
+	- mongodbvol:/data/db
+	networks:
+	- springappnetwork
+
+volumes:
+  mongodbvol:
+	external: true
+networks:
+  springappnetwork:
+    external: true
+
+----------------------------
+
+
+vi docker-compose-dev.yml
+
+version: '3.3'
+services:
+  springapp:
+	environment:
+	- MONGO_DB_HOSTNAME=mongo
+	- MONGO_DB_USERNAME=devdb
+	- MONGO_DB_PASSWORD=devdb@123
+
+  mongo:
+	environment:
+	- MONGO_INITDB_ROOT_USERNAME=devdb
+	- MONGO_INITDB_ROOT_PASSWORD=devdb@123
+
+
+----------------------------------
+
+docker-compose-qa.yml
+
+version: '3.3'
+
+services:
+  springapp:
+	environment:
+	- MONGO_DB_HOSTNAME=mongo
+	- MONGO_DB_USERNAME=qadb
+	- MONGO_DB_PASSWORD=qadb@123
+  
+  mongo:
+	environment:
+	- MONGO_INITDB_ROOT_USERNAME=qadb
+	- MONGO_INITDB_ROOT_PASSWORD=qadb@123
+
+---------------------------------
+
+docker-compose-prod.yml
+
+version: '3.3'
+
+services:
+  springapp:
+	environment:
+	- MONGO_DB_HOSTNAME=mongo
+	- Mongo_DB_USERNAME=proddb
+	- MONGO_DB_PASSWORD=prodb@123
+  
+  mongo:
+	environment:
+	- MONGO_INITDB_ROOT_USERNAME=proddb
+	- MONGO_INITDB_ROOT_PASSWORD=prodb@123
+
+
+docker-compose -f docker-compose.yml -f docker-compose-qa.yml up -d
+
+docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d
+
+docker-compose -f docker-compose.yml -f docker-compose-prod.yml up -d
+
+-----------------------------------------------------------------
+
+Deploy this application using jenkins.
+image version : BUILD NUMBER
+sed BUILD NUMBER
+
+
+
+Dockerfile vs docker-compose file?
+
+Dockerfile is to create docker images.
+
+docker-compose is to define and deploy multicontainer applications.
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+docker compose using external volumes.
+
+version: '3.1'
+
+services:
+  springapp:
+    image: prashhantss/spring-boot-mongo:1
+	ports:
+	- 8080:8080
+	networks:
+	- springappnetwork
+	environment:
+	- MONGO_DB_HOSTNAME=mongo
+	- MONGO_DB_USERNAME=devdb
+	- MONGO_DB_PASSWORD=devdb@123
+	container_name: springappcontainer
+  
+  mongo:
+    image: mongo
+	environment:
+	- MONGO_INITDB_ROOT_USERNAME=devdb
+	- MONGO_INITDB_ROOT_PASSWORD=devdb@123
+	volumes:
+	- mongodbvol:/data/db
+	networks:
+	- springappnetwork
+	
+volumes:
+  mongodbvol:
+	driver: rexray/ebs
+networks:
+  springappnetwork:
+    driver: bridge
+
+---------------------------------------------------------------------------------------------------
+
+Why container orchestration?
+- 

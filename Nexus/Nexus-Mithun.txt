@@ -1,0 +1,168 @@
+Sonatype Nexus:
+
+- Nexus is an open source software, developed using java.
+- Artifactory repository
+- Used to store the build and retrieve artifacts whenever required.
+- Artifacts:
+	- Java:jar,war,ear
+	- Docker: Docker images
+	- Node JS: NPM package
+	
+Nexus Installation
+
+yum install java 1.8* -y
+sudo su -
+cd /opt
+yum install tar wget -y
+wget https://download.sonatype.com/nexus/3/nexus-3.44.0-01-unix.tar.gz
+tar -zxvf nexus-3.44.0-01-unix.tar.gz
+mv /opt/nexus-3.44.0-01 /opt/nexus
+useradd nexus
+passwd nexus
+visudo
+sudo chown -R nexus:nexus /opt/nexus
+sudo chown -R nexus:nexus /opt/sonatype-work
+sudo chmod -R 775 /opt/nexus
+sudo chmod -R 775 /opt/sonatype-work
+vi /opt/nexus/bin/nexus.rc
+ln -s /opt/nexus/bin/nexus /etc/init.d/nexus
+sudo su - nexus
+systemctl daemon-reload
+sudo systemctl enable nexus
+sudo systemctl start nexus
+
+#Access the Nexus server from Laptop/Desktop browser.
+http://34.204.182.40:8081/
+
+#Default Credentials
+User Name:admin
+Password: sudo cat /opt/sonatype-work/nexus3/admin.password
+
+#Port and Context Path Change:
+su -nexus
+vi /opt/nexus/etc/nexus-default.properties
+sudo systemctl restart nexus
+
+Troubleshooting
+---------------------
+nexus service is not starting?
+
+a)make sure need to change the ownership and group to /opt/nexus and /opt/sonatype-work directories and permissions (775) for nexus user.
+b)make sure you are trying to start nexus service with nexus user.
+c)check java is installed or not using java -version command.
+d) check the nexus.log file which is availabe in  /opt/sonatype-work/nexus3/log  directory.
+
+Unable to access nexus URL?
+-------------------------------------
+a)make sure port 8081 is opened in security groups in AWS ec2 instance.
+
+
+
+
+
+Create Repo-
+
+
+java artifacts created using maven: maven(hosted)
+
+
+#Integrate maven with nexus.
+pom.xml - nexus repo details
+
+<distributionManagement>
+	
+	    <repository>
+	      <id>nexus</id>
+	      <name>prashantss Releases Nexus Repository</name>
+	      <url>http://54.255.174.111:8081/repository/flipkart-release/</url>
+	    </repository>
+	    
+	    <snapshotRepository>
+	      <id>nexus</id>
+	      <name>prashhantss Snapshot Nexus Repository </name>
+	      <url>http://54.255.174.111:8081/repository/flipkart-snapshot/</url>
+	    </snapshotRepository>
+	    
+	</distributionManagement>
+
+
+mvn home directory/conf/settings.xml	- Nexus Credintials
+
+<servers>		
+	<server>
+	<id>nexus</id>
+	<username>admin</username>
+	<password>admin</password>
+</servers>
+
+mvn clean deploy		#To store artifacts in snapshot
+
+Change snapshot version in POM.XML to upload in release repo.
+
+mvn clean deploy
+
+Settings: Repo: Releases: Deployment Policy : Allow Redeploy
+
+mvn clean deploy
+
+400: Bad Request (same version uploaded)(repo mismatch) (While creating repo..wrong version policy)
+
+401: Unauthorized
+
+
+2.0.0
+----------------------------------------------------------------------------
+Create Remote Repo: For storing shared libraries
+
+upload jar in remote repo and add dependency script in pom.xml
+
+mvn clean package
+
+Configure remote repo in pom.xml
+<repositories>
+
+<repository>
+	
+	<id>nexus</id>
+	<url>http://44.202.186.230:8081/repository/prashhantss-remote/</url>
+	
+</repository>
+
+</repositories>
+
+-----------------------------------------------------------------------------
+
+
+<dependency>
+  <groupId>com.mss</groupId>
+  <artifactId>mail</artifactId>
+  <version>1.0.0</version>
+</dependency>
+
+
+
+In the Maven settings (located in ${maven.home}/conf/settings.xml or ${user.home}/.m2/settings.xml), the following entry must be removed:
+
+<mirror>
+  <id>maven-default-http-blocker</id>
+  <mirrorOf>external:http:*</mirrorOf>
+  <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
+  <url>http://0.0.0.0/</url>
+</mirror>
+
+---------------------------------------------------------------------------------------
+
+maven hosted(proxy)
+
+create proxy repo > Mixed>provide maven repo (https://repo1.maven.org/maven2/)
+add repo url in pom.xml
+delete any dependency from local repo and test.
+
+----------------------------------------------------------------------------------------
+
+maven hosted(group)
+
+create group repo> Mixed > Select maven repos
+add repo url in proxy 
+mvn clean package
+----------------------------------------------------------------------------------------

@@ -1,0 +1,131 @@
+What is Git? - Version control system to locally  track changes in your project/folder and push/pull from remote repositories like GitHub, BitBucket, GitLab
+
+GitLab, GitHub, BitBucket ? - services that allow to host your project on a remote repositories & have additional features to Software Developement Life Cycle and CI/CD (Continious integration/Contineous deployement
+
+
+Git - It is a source code versioning system that lets you locally track changes and push or pull changes from remote resources.
+
+GitLab, GitHub, and Bitbucket - Are services that provides remote access to Git repositories. In addition to hosting your code, the services provide additional features designed to help manage the software development lifecycle. These additional features include managing the sharing of code between different people, bug tracking, wiki space and other tools for 'social coding'.
+
+    
+GitHub is a publicly available, free service which requires all code (unless you have a paid account) be made open. Anyone can see code you push to GitHub and offer suggestions for improvement. GitHub currently hosts the source code for tens of thousands of open source projects.
+
+    
+GitLab is a github like service that organizations can use to provide internal management of git repositories. It is a self hosted Git-repository management system that keeps the user code private and can easily deploy the changes of the code
+
+Features
+- GitLab hosts your (private) software projects for free.
+- GitLab is a platform for managing Git repositories.
+- GitLab offers free public and private repositories, issue-tracking and wikis.
+- GitLab is a user friendly web interface layer on top of Git, which increases the speed of working with Git.
+- GitLab provides its own Continuous Integration (CI) system for managing the projects and provides user interface along with other features 
+  of GitLab.
+    Eg: Managing, Sharing, Wiki, Bug Tracking, CI/CD
+
+How to setup SSH key in GitLab
+
+SSH - Secure Shell
+- Used for authentication
+- By setting ssh key you can connect to GitLab server without using username and password each time
+
+Step 1: Run command 
+   ssh-keygen
+enter file location where you want to store
+
+On Windows - use putty or git bash or Command prompt
+
+Step 2: Login to GitLab 
+   Go to git account ＞ Settings ＞ SSH Keys
+
+Step 3: Copy contents of id_rsa.pub and Add Key
+Paste your public SSH key, which is usually contained in the file '~/.ssh/id_ed25519.pub' or '~/.ssh/id_rsa.pub' and begins with 'ssh-ed25519' or 'ssh-rsa'. Do not paste your private SSH key, as that can compromise your identity. > Give name tou your key > Add Key
+
+Step 4: Verify SSH key is added
+
+------------------------------------------------------------------------------------------------------------------
+
+What is GitLab Runner?
+How to install GitLab runner
+How to register GitLab runner
+How to start GitLab runner
+
+- used in GitLab CI
+    - Open source continuous integration service included with GitLab
+- used to run jobs & send results back to GitLab
+
+Step 1: Install GitLab Runner
+   https://docs.gitlab.com/runner/
+   https://docs.gitlab.com/runner/instal... (Follow steps to create gitlab runner directory & for installation steps)
+
+gitlab-runner.exe install
+gitlab-runner --version
+   
+Step 2: Register GitLab Runner
+  (process to bind runner with gitlab instance)
+https://docs.gitlab.com/runner/regist...
+
+Go to your project > Settings > CI/CD > Runner (Expand) > Set up a specific Runner for a project and follow the given steps
+
+gitlab-runner.exe register
+
+Register the runner 
+
+https://gitlab.com/
+
+Copy registration token and enter
+Provide Runner description
+
+Enter gitlab-ci tag for the runner (Any name)
+
+Step 3: Start GitLab Runner
+
+gitlab-runner.exe start
+
+Step 4: Check runner is started in the project
+
+Go to your project > Settings > CI/CD > Runner (Expand) > Runners activated for this project
+
+---------------------------------------------------------------------------------------------------
+
+1. What is GitLab CI/CD
+2. Create .gitlab-ci.yml
+3. Run CI/CD pipeline
+
+GitLab CI is an open source CI service included with GitLab
+Since ver 8.0
+GitLab CI is an open source Continuous Integration service included with GitLab
+Only project maintainers & Admin can access the Settings
+
+Step 1: Add .gitlab-ci.yml in the root folder of your project/repository
+
+- GitLab CI/CD pipeline are configured using YAML file called .gitlab-ci.yml in each project
+- .gitlab-ci.yml file defines the structure and order of the pipeline & determines
+-
+Windows - Notepad, notepad++
+
+demo_job_1:
+     tags:
+       - ci
+     script:
+       - echo Hello World
+http://www.yamllint.com/
+
+Step 2: Commit and push file to gitlab repo
+
+Step 3: Create GitLab runner for the project
+Video - https://www.youtube.com/watch?v=R8rru...
+
+Step 4: Start the runner
+
+Step 5: Make any change in the project  ＞ commit ＞ push
+
+
+.......................................................................................................................
+
+
+
+Uninstall Git
+
+yum remove git -y
+rpm -qa git*
+yum remove git*

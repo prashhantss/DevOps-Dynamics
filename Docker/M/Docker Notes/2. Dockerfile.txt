@@ -1,0 +1,228 @@
+Dockerfile:
+- Dockerfile is just a file without any extension which will have instructions to create an image. 
+- Docker will process these instructions from top to bottom. 
+- Uses docker DSL(Domain Specific Language) keywords.
+--------------------------------------------------------------------------------------------------------	
+
+FROM: 
+- Indicates base image on top of it we can create our custom image.
+- Multistage dockerfile: Can have multiple base images.
+	
+	FROM <IMAGENAME>
+	EX: FROM tomcat:jdk8.0.1
+	    FROM dtr.tcs.com/java:1.8-jdk
+
+--------------------------------------------------------------------------------------------------------
+
+MAINTAINER: 
+- Author/Owner of the Dockerfile/Image
+	
+    EX: MAINTAINER prashhnatss
+
+--------------------------------------------------------------------------------------------------------
+
+Copy:
+- Used to copy files/folders to image while create an image.
+	
+    COPY <Source> <Destination>
+	EX: COPY target/maven-web-app.war /usr/local/tomcat/webapps/maven-web-app.war
+		COPY . .
+
+--------------------------------------------------------------------------------------------------------
+
+ADD:
+- ADD also copy files to image. 
+- ADD can copy local files and it can download files from remote http/https locations while creating an image. 
+- If we are adding or downloading tar files(*.tar) it will add and also it will extract that file in image.
+	
+    ADD <SourceFilePsth> <Destination>
+	EX: ADD https://URL 
+
+--------------------------------------------------------------------------------------------------------
+
+Run:
+- RUN executes commands on top of base image. RUN instructions will be executed while creating an image.
+- RUN instructions can be used to install/setup required software/configurations while creating an image.
+- We can have N number of insructions.
+	
+    RUN <Command>
+	EX: RUN mkdir /app
+		RUN yum update -y && yum -y install awscli
+
+--------------------------------------------------------------------------------------------------------
+
+CMD:
+- CMD can execute commands while creating a container. 
+- CMD can be used to start the process/application inside container while creating a container. 
+- Docker will process/execute only one CMD (Recent/Last)
+- can be overriden while creating container.
+	EX:CMD ["catalina.sh", "run"]
+
+--------------------------------------------------------------------------------------------------------
+
+ENTRYPOINT:
+- ENTRYPOINT instructions will be executed while creating a container.
+- ENTRYPOINT can't be overriden while creating container.
+- Docker will process/execute only one ENTRYPOINT (Recent/Last)
+- runtime arguments are considered as instructions for ENTRYPOINT.
+	EX:ENTRYPOINT
+
+--------------------------------------------------------------------------------------------------------
+
+ENV:
+- Set environment variables for an image. 
+- These variables will be accessible in an image while creating an image and this we an access in container also.
+	ENV <Environment>
+	EX: ENV CATALINA_HOME /usr/local/tomcat
+		ENV PATH $CATALINA_HOME/bin:$PATH
+
+--------------------------------------------------------------------------------------------------------	
+
+LABEL:
+- Lables are metadat and key value pair which we cadd to image.
+	LABEL <KEY> <VALUE>
+	EX: LABEL branchname develope
+
+--------------------------------------------------------------------------------------------------------
+
+ARG:
+- ARG is variable used to pass/define arguments while creating an image or runtime
+- ARG accessible only while creating image, we cannot access in conatiner.
+	ARG <Arguments>
+	EX: ARG branch=develop
+		docker build -t image:4 --build-arg branch=qa .#Runtime Args
+	
+	* ARG vs ENV:
+
+--------------------------------------------------------------------------------------------------------
+
+USER:
+- Set an user for a conatiner or image. 
+- The instructions will be executed as whatever user have set.
+	USER <UserName>
+
+--------------------------------------------------------------------------------------------------------
+
+WORKDIR;
+- Can set a working directory for an image/container.
+	WORKDIR<Dirpath>
+	EX: WORKDIR /usr/local/tomcat
+
+--------------------------------------------------------------------------------------------------------	
+
+EXPOSE:
+- Indicates on which port container is listening. 
+	EX: EXPOSE 8080
+	
+
+--------------------------------------------------------------------------------------------------------
+
+VOLUME:
+- Used to mount directory and store data to that directory.
+	VOLUME <Direcory>
+	EX: VOLUME /var/jenkins_home
+
+--------------------------------------------------------------------------------------------------------
+
+FROM centos
+RUN echo "RUN 1"
+RUN mkdir /app
+RUN echo "RUN 2"
+RUN echo "Run 3"
+ENTRYPOINT ["echo", "Welcome Fom CMD"]
+CMD ["date"]
+ENV Test TestingENV
+ARG branch=develope
+LABEL branchname $branch
+
+
+**************************************************************************************************************
+
+What is shell form and executable from in docker?
+
+Shell form: executes as /bin/<shell> -c <command>
+
+RUN <CMD> <ARGS>
+CMD <CMD> <ARGS>
+ENTRYPOINT <CMD> <ARGS>
+
+EX:
+RUN mkdir -p /usr/test../bin/bash/ -c mkdir -p /usr/test
+CMD java -jar app.jar
+CMD sh test.sh
+ENTRYPOINT java -jar app.jar
+
+
+Executable Form: /bin/<executable> <args>
+
+RUN ["CMD","ARG1","ARG2"]
+CMD ["CMD","ARG1","ARG2"]
+ENTRYPOINT ["CMD","ARG1","ARG2"]
+
+EX:
+RUN ["mkdir',"-p","/usr/test"]../bin/mkdir -p /usr/test
+CMD ["java","-jar","app.jar"]
+CMD {"sh", "test.sh"]
+ENTRYPOINT ["java","-jar","app.jar"]
+
+
+**************************************************************************************************************
+	
+MultiStage Dockerfile:
+
+FROM git as repo
+WORKDIR /app
+RUN git clone https://github.com/prashhantss/maven-web-application.git
+
+FROM maven as build
+COPY --from=repo java-web-app-docker /app
+RUN mvn clean install
+
+FROM tomcat:8.0
+COPY --from=build /app/target/java-web-app.war /usr/local/tomcat/webapps/java-web-app.war
+
+**************************************************************************************************************
+
+FROM centos
+RUN echo "Test1"
+RUN mkdir /app
+RUN echo "Test 2"
+RUN yum install unzip -y
+CMD ["echo","Welcome from CMD"]
+CMD date
+ENV Test TestingENV
+ARG branch=develop
+LABEL branchname $branch
+
+**************************************************************************************************************
+
+Dockerfile for nodejs-app-mss.git
+
+FROM node:12
+RUN mkdir -p /usr/app
+WORKDIR /usr/app
+COPY . .
+RUN npm install
+EXPOSE 9981
+CMD ["node","app.js"]
+
+**************************************************************************************************************
+
+Sample Workflow Using Dockerfile
+- Git Repository: 
+	- git clone https://github.com/prashhantss/maven-web-application.git
+
+- Dockerfile:
+	- FROM tomcat:7-jdk8-correcto
+	- COPY target/maven-web-application*.war /usr/local/tomcat/webapps/maven-web-application.war
+			
+- Create docker image:
+	- docker build -t prashhantss/maven-web-application:1 .
+	
+- Push Docker Image:
+	- docker push prashhantss/maven-web-application:1
+			
+- Create docker container:
+	- docker run -d -p 8080:8080 --name myapp prashhantss/maven-web-application:1
+
+**************************************************************************************************************

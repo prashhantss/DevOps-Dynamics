@@ -1,0 +1,51 @@
+Monolothic Application Or Architecture: 
+- Applications maintained(Build and Deploy) as a singlr entity-Code Base.
+- Challenges: Maintainance, Scaling
+
+Micro Services Architecture: 
+- Collection of multiple small applications(servers) which are related.
+- Challenges: Build and Deployment
+				CI/CD tools to build and deploy.
+				More Resources>>> Containarization
+				Communication b/w Micro services>>> Docker Networks
+										
+Containarization Tools: Docker, Core OS, Rocket(RKT)
+
+Docker Networks: Communication b/w conainers
+- by default conatiner will be created in default Bridge Network
+Docker have 3 types of network:
+
+1) Bridge:  
+-	Default Bridge Network: Communication happen only using IPs and not using hostnames.
+-	Custom Bridge Network: Communication happen using IPs and hostnames.
+					
+	docker network create -d bridge mongonetwork		#d-Network Driver
+					
+	docker run -d --name mongoapp -p 8080:8080 --network mongonetwork mongo:latest
+					
+	docker exec -it mongo /bin/bash
+			
+	ping using IP and Hostname and test
+			
+	docker network connect <networkname> <containername>		#To attach container to the specific network
+			
+	docker network disconnect <networkname> <containername>		#To dettach container to the specific network
+			
+2) Host:
+- Containers can be created directly on host/server network.
+- If containers are created using host network then containers will not have its own IP address.
+- Can be accessed using Host IP.
+- If network is created using host then it is not possible to launch another container on host network. It will be down after some time.
+		
+	docker run -d --name <containername> --network host <imagename>
+		
+	docker logs <containername>
+		
+	docker network inspect
+		
+3)  None/Null:
+- Containers in none/null network will not have a IP address and we cannot access anywhere.
+
+
+- Cannot create docker network between two docker servers.
+- Overlay network is multihost network. 

@@ -1,0 +1,203 @@
+Container Orchestration Tools:
+	- Docker Swarm
+	- Kubernetes
+	- Openshift
+
+Docker Swarm: 
+	- Docker swarm is a cluster management and orchestration tool which is embedded in docker engine.
+
+Docker Swarm Cluster: 
+	- Group of docker servers. There will be a master and worker machines.
+	- Cluster Management
+	- Decentraliz design
+	- Declarative service model
+	- Sclaing
+	- Desired state reconciliation
+	- Multi-host network
+	- Service discovery
+	- Load balancing
+	- Secure by default
+	- Rolling updates
+	
+Master: 
+	- Schedule/Assign container tasks for worker machines and manage the worker nodes.
+
+Network Checks: The folllowing ports must be available.
+	-	TCP-2377 Cluster management communication
+	-	TCP and UDP 7946 for communication among nodes.
+	-	UDP 4789 for overlay network traffic
+	-	If you are planning an overlay network with encryption (-opt encrypted), you will also need to ensure ip protocol 50(ESP) traffic is allowed.
+	- 	Enable all the ports in AWS security group.
+			
+User Data Script
+#!/bin/bash
+sudo apt-get update
+sudo apt-get install curl -y
+sudo apt install docker.io -y
+sudo usermod -aG docker ubuntu
+systemctl start docker.service
+
+Intilaize docker swarm cluster on public IP
+	- docker swarm init [ --listen-addr=eth0 --advertise-addr $(curl http://169.254.169.254/latest/meta-data/public-ipv4) ]
+
+Intilaize docker swarm cluster:
+	- Once docker swarm is initialized it will create overlay (ingress) network.
+	- docker swarm init
+	- docker node ls
+
+Get worker token
+	- docker swarm join-token worker (Get the token in manager & exeute in nodes)
+
+Join as worker
+	- sudo chmod 666 /var/run/docker.sock
+	- Docker swarm manager quarm: (n-1)/2 to acheive high availability.odd number of machines in the master.
+
+Docker Service: 
+	- Collection of one or more containers of same image type.
+	- In docker swarm we have to deploy application as a service.
+	- Docker Swarm has two modes of services
+		
+1) Global: All the nodes (3 servers 1 Manager + 2 Workers)
+	- Each and every active node will have a copy of container for global services.
+	- Cannot scale up/down.
+	- Whnever new node added, container will be created automatically in new node.
+		docker service create --name mavenwebapp --mode global -p 8080:8080 prashhantss/maven-web-application:1
+		docker service ls
+		docker service ps mavenwebapp		
+	
+	
+2) Replicas(default mode): 
+	- It will deploye based on replicated number and it will create a service with 1 replica
+	- can scale up/down.
+	- docker service create --name <servicename> -p <hostport>:<containerport> --replicas 3 <imagename>
+
+	- docker service create --name javasvc -p 8080:8080 prashhantss/java-web-application:1	
+	- docker service ps javasvc				#List in which node service is running currently 
+	- docker node ls						#List cluster nodes
+	- docker service ls						#List all available services 
+
+	Scale service
+		- docker supports manual scaling.
+		- docker service scale <ServiceName>=<NumberOf Replicas>
+		- docker service scale javasvc=3
+		- docker service ls
+		- docker service ps javasvc
+		- docker node ls
+
+
+Labels and Constraints:
+	- Using labeles and constraints we can schedule service on specific node (Container Placements).
+	
+	- docker node inspect
+	- docker service rm $(docker service ls -q)
+	- docker service create --name mavenwebappservice --constraint "node.role==worker" --replicas 3 -p 8080:8080 prashhantss/maven-web-application:1
+	- docker service create --name javawebappservice --constraint "node.role==worker" --mode global -p 9090:8080 prashhantss/java-web-app:1
+
+
+Drain the node:
+	- If any mainatainance required we can add additional worker node and drain node which required mainatainance and we can do the maintainance.
+	
+	- docker node update <NodeID> --availability drain
+	- docker node update <NodeID> --availability active
+	- docker node update
+	- docker service create --name javawebappservice --mode global -p 9090:8080 prashhantss/java-web-app:1
+	- docker service ps javawebappservice
+
+Labels:
+	- docker node update --label-add "type=appServer"  <NodeID>
+	- docker service create --name mavenwebappservice --replicas 3 --constraint "node.labels.type==appServer" -p 8080:8080 prashhantss/maven-web-app:1
+	- docker service ls
+	- docker service ps javawebappservice
+
+Promote node as Master
+	- docker node promote <NodeName/ID>
+	- docker node demote <NodeName/ID>
+
+
+------------------------------------------------------------------------------------------
+Spring-boot-mongo-docker
+
+version: '3.1'
+services:
+  springboot:
+    image: dockerhandson/spring-boot-mongo:latest
+    restart: always # This will be ignored if we deploy in docker swarm
+    environment:
+    - MONGO_DB_HOSTNAME=mongo
+    - MONGO_DB_USERNAME=devdb
+    - MONGO_DB_PASSWORD=devdb123
+    ports:
+      - 8080:8080
+    working_dir: /opt/app
+    depends_on:
+      - mongo
+    networks:
+    - springappnetwork  
+    deploy:  # This will be considered only in docker swarm.
+      replicas: 2
+	  constraints:
+	  - node.role==worker
+      update_config:
+        parallelism: 1
+        delay: 20s
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+
+  mongo:
+    image: mongo
+    environment:
+    - MONGO_INITDB_ROOT_USERNAME=devdb
+    - MONGO_INITDB_ROOT_PASSWORD=devdb123
+    volumes:
+      - mongodb:/data/db
+    restart: always
+    networks:
+    - springappnetwork
+    
+volumes:
+  mongodb:
+    external: true
+    
+networks:
+  springappnetwork:
+    external: true
+
+Docker Stack:
+	- Collection of services.
+Docker Service:
+	- Collection of one or more containers of same type of image.
+
+	- docker stack ls
+	- docker network create -d overlay springoverlay
+	- docker stack deploy --compose-file docker-compose.yml springapp 
+	- docker service ls
+	- docker stack ls
+	- docker stack services springapp
+	- docker stack ps springapp
+	- docker stack rm springapp
+	- watch docker stack ps sprinapp
+
+
+
+
+
+How many clusters have?
+
+How many docker nodes u have in production?
+3 manager and 10 workers
+
+What is the configuration of your nodes?
+128 GB
+64 Core Processor
+
+how many services you have ?
+90+
+
+I want to deploy more applications.
+
+How many stacks you have?
+12 stacks
+How many containers u have?
+700+

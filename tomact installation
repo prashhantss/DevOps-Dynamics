@@ -1,0 +1,24 @@
+Prerequisite:
+
+Java -verify version
+$java -version
+Open port 8080 in EC2
+
+cd /opt
+wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.72/bin/apache-tomcat-9.0.72.zip
+unzip apache-tomcat-9.0.72.zip
+mv apache-tomcat-9.0.72 tomcat
+cd /opt/tomcat/bin/
+chmod u+x *.sh
+ln -s /opt/tomcat/bin/startup.sh /usr/bin/tomcatstart
+ln -s /opt/tomcat/bin/shutdown.sh /usr/bin/tomcatstop
+cd /opt
+tomcatstart
+
+
+
+vi /opt/tomcat/webapps/manager/META-INF/context.xml
+
+vi /opt/tomcat/conf/tomcat-users.xml
+
+sudo vi /opt/tomcat/conf/server.xml

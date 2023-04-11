@@ -1,0 +1,126 @@
+Maven Installation:
+
+Prerequisite:
+    - Java -verify version
+    - wget https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.zip
+    - unzip apache-maven-3.8.6-bin.zip
+    - mv apache-maven-3.8.6 maven
+    - cd maven > PWD
+    - vi ~/.bash_profile
+
+    export M2_HOME="/opt/maven
+    export PATH=$PATH:$M2_HOME/bin
+			OR
+    #Find Java Path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.342.b07-1.amzn2.0.1.x86_64
+    JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64 
+    M2_HOME=/opt/maven
+    M2=/opt/maven/bin
+    PATH=$PATH:$HOME/bin:JAVA_HOME:$M2:$M2_HOME			
+		
+    - source ~/.bash_profile
+
+
+
+MAVEN:
+    - Maven is an open source java based build tool used to build pacakges/build artifacts.
+
+Build Tools:
+    - JAVA: Ant, Maven and Gradle
+    - .Net: Nant and MS Build
+    - Python: PYBuilder
+    - Ruby: Rake
+    - Java Script, NodeJS, Angular: Grunt, Gulp
+
+
+Java Applications:
+How to run java program?
+    - HelloWorld.java-->Java Source Code.
+    - javac HelloWorld.java --> HelloWorld.class -->Byte Code >>understand by JVM
+    - java HelloWorld
+
+1) Java Standalone Apps: .jar (Java Archive)
+    - Java Code
+    - jar contains .classfiles
+
+2) Java Web Apps:.war (Web Archive)
+    - Java Code + Web Content (html,css,jss,xml,image)
+           
+3) Java Enterprise Apps:.ear (Enterprise Archive)
+    - Java Code + Web Content (html,css,jss,xml,image)
+    - Contains n number of modules
+    - jar+war+rar (Resource Archive)
+    - Atleast 1 war should be available to create ear. 
+
+
+Default Build Scripts:
+    - Ant: build.xml
+    - Maven: pom.xml (Package Object Model)
+    - Gradle: build.gradle
+
+Maven Directory Structure.
+    - bin : mvn related binaries
+    - conf : settings.xml
+    - lib : Libraries, Jar Files
+
+
+JAVA:
+    - JDK-Java Developement Kit >JVM+JRE > If need to develope java program
+    - JRE-Java Runtime Environment > To run 
+
+POM.XML
+    - xml-extensible Markup Language > 
+    - HTML- Hyper Text Markup Language > Pre-defined Tags and user defined tags
+
+
+junit: Source Code + Build Script + Unit Test Cases
+
+    - Java: junit
+    - .Net: NUnit
+    - C: Cunit
+    - C++: CPP Unit
+
+Maven Central Repository: 
+    - https://mvnrepository.com/
+
+Maven Repositories:
+
+- Maven Local Repo:
+    - Linux: ~/.m2/repository OR  /home/username/.m2/repository
+    - Windows: C:\\Users\..\.m2/repository
+    - MAC: /Users/../.m2/repository
+   
+
+settings.xml
+<LocalRepository>CustomPath</LocalRepository>
+
+
+
+Maven Central Repo:
+    - Maintained by maven community team.
+
+
+Maven Remote Repo:
+    - Nexus, Jfrog Artifactory
+
+Maven LifeCycle and Goals:
+
+1. clean
+	- clean: It will delete previous build files.
+2. site
+	- site: To generate document for your source code.
+3. default
+	- validate: Validates project structure and resource files.
+	- compile: It will compile your source code.
+	- test: used to run the Junit test cases.
+	- pacakge: create package / build artifacts.
+	- install: it will store your build artifacts in to local repository.
+	- deploy: It will store the build artifacts in the remote repository.
+	
+To skip running test case
+    - mvn clean package -DskipTests
+    - mvn clean package -Dmaven.skip.test=true
+    - mvn clean package
+    - mvn clean
+    - mvn clean install 
+
+mvn clean package -pl MavenEnterpriseApp-web

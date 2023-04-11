@@ -1,0 +1,321 @@
+What is Docker ?
+-	Docker is the world’s leading software container platform
+	Docker makes the process of application deployment very easy and efficient and resolves a lot of issues related to deploying applications
+
+-	Docker is a tool designed to make it easier to deploy and run applications by using containers
+
+-	Docker gives you a standard way of packaging your application with all its dependencies in a container
+
+-	Containers allow a developer to package up an application with all of the parts it needs, 
+	such as libraries and other dependencies, and ship it all out as one package. 
+	
+--------------------------------------------------------------------------------------------------------------
+Benefits of using Docker
+	Build app only once
+	No worries that the application will not perform the same way it did on testing env
+	Portability
+	Version Control
+	Isolation
+	Productivity
+	Docker simplifies DevOps
+----------------------------------------------------------------------------------------------------------------
+Docker Installation and Uninstall
+
+	sudo pacman -S docker
+	udo usermod -aG docker $USER
+
+	Prerequisite
+	OS should be 64 bit
+	Linux kernel ver 3.10 or greater
+
+	command to check : uname -r
+
+	STEP 1 - Connect to Linux system
+
+	STEP 2 - Install DOCKER
+	sudo yum -y update
+	sudo yum install -y docker
+
+	docker
+	docker --version
+
+	STEP 3 - start DOCKER
+	sudo service docker start
+	sudo usermod -a -G docker "user"
+
+	docker info
+
+	docker run hello-world : to run hello-world image
+
+	docker images : to get list of images present locally
+
+	docker ps : to get list of running containers
+
+	docker ps -a .  : to get list of all containers
+
+	STEP 4 - stop DOCKER
+	sudo service docker stop
+	uninstall DOCKER
+	sudo yum remove docker
+	
+	
+-----------------------------------------------------------------------------------------------------------------
+Docker Basic Commands
+
+	Basic
+	: docker version
+	: docker -v
+	: docker info
+	: docker --help
+	: docker login
+	————————————
+	Images
+	: docker images
+	: docker pull
+	: docker rmi
+	————————————
+	Containers
+	: docker ps
+	: docker run
+	: docker start
+	: docker stop
+	————————————
+	System
+	: docker stats
+	: docker system df
+	: docker system prune
+	
+------------------------------------------------------------------------------------------------
+
+Docker Images
+
+What are Images
+Docker Images are templates used to create Docker containers
+Container is a running instance of image
+
+Where are Images Stored
+Registries (e.g. docker hub)
+Can be stored locally or remote
+
+: docker images --help
+: docker pull image
+: docker images
+: docker images -q
+: docker images -f “dangling=false”
+: docker images -f “dangling=false” -q
+
+: docker run image
+: docker rmi image
+: docker rmi -f image
+
+: docker inspect
+: docker history imageName
+
+-----------------------------------------------------------------------------------------------------
+
+What are Containers:
+Containers are running instances of Docker Images
+
+COMMANDS
+: docker ps
+: docker run ImageName
+: docker start ContainerName/ID
+: docker stop ContainerName/ID
+
+: docker pause ContainerName/ID
+: docker unpause  ContainerName/ID
+
+: docker top ContainerName/ID
+: docker stats ContainerName/ID
+
+: docker attach ContainerName/ID
+
+: docker kill ContainerName/ID
+: docker rm ContainerName/ID
+
+: docker history ImageName/ID
+
+Notes
+
+A container image is a lightweight, stand-alone, executable package of a piece of software that includes everything needed to run it: code, runtime, system tools, system libraries, settings.
+
+Features of Containers:
+
+Are lightweight
+
+Fewer resources are used
+
+Booting of containers is very fast
+
+Can start, stop, kill, remove containers easily and quickly
+
+Operating System resources can be shared within Docker
+
+Containers run on the same machine sharing the same Operating system Kernel, this makes it faster
+
+You can use the command
+docker container create
+to create a container in stopped state
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+For those who are having a permission issue like this:
+	Use the --privileged tag with the docker run command
+	OR
+	touch: cannot touch '/var/jenkins_home/copy_reference_file.log': Permission denied
+	Can not write to /var/jenkins_home/copy_reference_file.log. Wrong volume permissions?
+
+	change your destination folder's owner and  group to uid 1000, like this
+	sudo chown 1000:1000 /path/to/your/folder
+
+	This is probably not the best solution and you shouldn't really just do it in production just from this comment. This is just to get you to follow along this tutorial. Please google and research more about this issue before going into production.
+
+Today we will learn :
+	1. How to start Jenkins on Docker Container
+	2. Start and Stop Jenkins Container
+	3. How to set Jenkins home on Docker Volume and Host Machine
+	: docker pull jenkins
+	: docker run -p 8080:8080 -p 50000:50000 jenkins
+	: docker run --name MyJenkins -p 8080:8080 -p 50000:50000 -v /Users/raghav/Desktop/Jenkins_Home:/var/jenkins_home jenkins
+	: docker run --name MyJenkins2 -p 9090:8080 -p 50000:50000 -v /Users/raghav/Desktop/Jenkins_Home:/var/jenkins_home jenkins
+	: docker volume create myjenkins
+	: docker volume ls
+	: docker volume inspect myjenkins
+	: docker run --name MyJenkins3 -p 9090:8080 -p 50000:50000 -v myjenkins:/var/jenkins_home jenkins
+	: docker inspect MyJenkins3
+	In case you face issues like installing plugins on this Jenkins, can setup jenkins with this command:
+	$ docker run -u root --rm -p 8080:8080 -v /srv/jenkins-data:/var/jenkins_home   -v /var/run/docker.sock:/var/run/docker.sock   --name jenkins jenkinsci/blueocean
+
+ useful information:
+Installed docker client binaries in the jenkins image, added the  jenkins user to the docker group and provided full permission to the docker.socket process..in case anyone finds this useful.
+
+----------------------------------------------------------------------------------------------------------
+
+Dockerfile : 
+A text file with instructions to build image
+Automation of Docker Image Creation
+
+FROM
+RUN
+CMD
+
+Step 1 : Create a file named Dockerfile
+
+Step 2 : Add instructions in Dockerfile
+
+Step 3 : Build dockerfile to create image
+
+Step 4 : Run image to create container
+
+COMMANDS
+: docker build 
+: docker build -t ImageName:Tag directoryOfDocekrfile
+
+: docker run image
+
+
+------------------------------------------------------------------------------------------------------------------
+
+Docker compose
+: tool for defining & running multi-container docker applications
+: use yaml files to configure application services (docker-compose.yml)
+: can start all services with a single command : docker compose up
+: can stop all services with a single command : docker compose down
+: can scale up selected services when required
+
+Step 1 : install docker compose
+   (already installed on windows and mac with docker)
+   docker-compose -v
+   
+   2 Ways
+
+   1.  https://github.com/docker/compose/rel...
+
+   2. Using PIP
+    pip install -U docker-compose
+
+Step 2 : Create docker compose file at any location on your system
+   docker-compose.yml
+
+Step 3 : Check the validity of file by command
+    docker-compose config
+
+Step 4 : Run docker-compose.yml file by command
+   docker-compose up -d
+
+Steps 5 : Bring down application by command
+   docker-compose down
+
+TIPS
+How to scale services
+
+—scale
+docker-compose up -d --scale database=4
+
+
+--------------------------------------------------------------------------------------------------------
+
+Volumes are the preferred mechanism for persisting data generated by and used by Docker containers
+
+: docker volume  //get information
+: docker volume create
+: docker volume ls
+: docker volume inspect
+: docker volume rm
+: docker volume prune
+
+Instead of deleting containers one by one of docker ps -a , we can use docker container prune.  and for docker ps (running containers) we can use  docker rm $(ps -aq)
+
+Use of Volumes
+===========
+Decoupling container from storage
+Share volume (storage/data) among different containers
+Attach volume to container
+On deleting container volume does not delete
+
+Commands
+docker run --name MyJenkins1 -v myvol1:/var/jenkins_home -p 8080:8080 -p 50000:50000 jenkins
+docker run --name MyJenkins2 -v myvol1:/var/jenkins_home -p 9090:8080 -p 60000:50000 jenkins
+docker run --name MyJenkins3 -v /Users/raghav/Desktop/Jenkins_Home:/var/jenkins_home -p 9191:8080 -p 40000:50000 jenkins
+
+NOTES
+
+	By default all files created inside a container are stored on a writable container layer
+
+	The data doesn’t persist when that container is no longer running
+
+	A container’s writable layer is tightly coupled to the host machine where the container is running. You can’t easily move the data somewhere else.
+
+	Docker has two options for containers to store files in the host machine
+	so that the files are persisted even after the container stops
+
+	VOLUMES  and  BIND MOUNTS
+
+	Volumes are stored in a part of the host filesystem which is managed by Docker
+
+	Non-Docker processes should not modify this part of the filesystem
+
+	Bind mounts may be stored anywhere on the host system
+
+	Non-Docker processes on the Docker host or a Docker container can modify them at any time
+
+	In Bind Mounts, the file or directory is referenced by its full path on the host machine. 
+
+
+	Volumes are the best way to persist data in Docker
+
+	volumes are managed by Docker and are isolated from the core functionality of the host machine
+
+	A given volume can be mounted into multiple containers simultaneously.
+
+	When no running container is using a volume, the volume is still available to Docker and is not removed automatically. You can remove unused volumes using docker volume prune.
+
+	When you mount a volume, it may be named or anonymous. 
+
+	Anonymous volumes are not given an explicit name when they are first mounted into a container
+
+	Volumes also support the use of volume drivers, which allow you to store your data on remote hosts or cloud providers, among other possibilities
+	
+----------------------------------------------------------------------------------------------------------------
+	

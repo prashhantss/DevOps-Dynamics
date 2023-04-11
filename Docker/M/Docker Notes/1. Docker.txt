@@ -1,0 +1,205 @@
+What is required to host applications?
+	- User
+	- Process
+	- Storage
+	- Network
+	- Operating System
+	- Hardware
+
+
+What is the problem we have with traditional approach?
+	- Installation and configuration
+	- Time consuming
+	- Need to perform Install/Config across all servers DEV, QA, PROD. Hence we may endup with inconsistency.
+	- Incompatibility
+	- Inconsistency
+  
+Containarization Architecture--> Hardware>HostOS > ContainarizationSoftware/Tool > Containers-Apllication and its dependencies
+
+	- Conatiners will not use complete RAM/ROM of your Host OS.
+	- Each containers will have its own storage, applications but host OS will same for all the containers.
+	- If any problem with the container, Host machine will not have any issues.
+	- Conatiners can be deployed on physical machine or virtual machines.
+	- Containers are light weight it does not require Host OS.
+
+Docker:
+	- Open source containarization Platform/container orchestration tool which enables you to seperate your applications from physical environment.
+	- To run application/software we need only Containarization runtime.
+	- Uses Linux concepts, runs directly on machine's kernel.
+	- Advantages
+		- Flexible
+		- Lightweight in nature as it does not require a hypervisor.
+		- Portable(Build once and deploy anywhere)
+		- Loosely Coupled and self sufficient
+		- Scalable, quick to deploy and easy to use.
+		- Versioning
+		- Supports cross platform (can be installed in any OS)
+		
+Key Docker Terminogies:
+	- Dockerfile: Is a file which contains instructions to create docker image.
+	- Docker Image: It's a package which contains application code and it's dependencies(Layered Architecture).
+	- DockerContainer: Runtime instance/processes of docker image.
+	- Docker Registery/Repository: Contains docker images/packages which we can push/pull anywhere and we can create container out of it.
+	- Docker Client: Command line interface
+	- Docker Daemon: Executes the commands or instructions sent by user.
+	
+Docker Subscriptions:
+	- Docker Community Edition: free (Can install in linux flavours except RedHat)
+	- Docker enterprise Edition: Commercial
+		- UCP: Universal Control Pane (Will get GUI to manage/monitor docker cluster)
+		- DTR: Docker Trusted Registry
+
+Docker Hub: Public docker registry
+
+Docker Installation: Launch Ubuntu as Build Server.
+	- curl -fsSL get.docker.com | /bin/bash
+			OR  
+	- sudo apt update
+	- sudo apt install docker.io -y
+	- sudo docker info
+	- sudo usermod -aG docker ubuntu or $USER   #To add user in the docker group
+	- exit
+	
+Docker Basic Commands:
+
+- docker version: To view docker version
+
+- docker info: Get information about docker
+
+- docker status: check status of docker service
+
+- docker login : login to registry
+
+
+Docker Images Basic Commands:
+
+- docker build: build docker image from Dockerfile
+	docker build -t <Registry/Repository:Tag> <DockerBuildContext>
+
+- docker images: list all images on the local volume
+	docker images
+	docker images -f dangling=true
+	
+- docker run: run docker image / create container out of image.
+
+- docker history: Lists layer of image.
+    docker history <ImageName:Tag>
+
+- docker rmi: remove/delete an image
+	docker rmi $(docker images -q)	#Remove all image
+	docker rmi -f $(docker images -q) #Remove all images
+
+- docker tag : name a docker image
+	docker tag <ImageID> <Registery/Repository:Version>
+
+- docker push/pull : push or pull images to/from Docker Registries
+
+- Image Layers: docker history <ImageName:Tag>
+	top layer will be source code.
+  
+- docker image prune : This will remove all dangling images.
+
+- What is Dangling Image? 
+	- An image which doesn't have repo details or which is not tagged
+
+
+Docker Container Basic Commands:
+
+- docker create: Create Container
+	docker create --name <ContName> <ImageName>
+	ex:	docker create --name mavenwebapp prashhantss/maven-web-application:1
+
+- docker ps: List Running Containers
+	docker ps OR docker cocontainer ls
+	docker ps -a OR docker contaainer ls -a	#List all containers
+
+- docker run: run docker image / create container out of image.
+	docker run --name <ContName> <ImageName>
+	docker run --name 6a9c678b5be8
+	
+- Port Binding/port forward/port mapping for conatiner.
+	docker run -d -p <HostPort>:<ContainerPort> --name <ContName> <ImageName>
+
+- docker start: start conatainer
+	docker start <ContName/ID>
+	docker start 6a9c678b5be8
+
+- docker restart: restart conatiner
+	docker restart <ContainerID/Name>
+
+- docker stop: stop container
+	docker stop <ContainerID/Name>
+
+- docker rm <ContainerID/Name>
+	docker rm $(docker ps -q)	#Remove all image
+	docker rm -f $(docker ps -q) #Remove all images
+
+- docker kill:
+	docker kill <ContainerID/Name>
+
+- docker rename:
+	docker rename <ContainerID/NameOld> <ContainerNameNew>
+
+- docker pause:
+	docker pause <ContainerID/Name>
+
+- docker unpause:
+	docker unpause <ContainerID/Name>
+
+- docker container prune: This will remove all stopped containers.
+
+
+How to troubleshoot your application which is running as container.
+
+- docker inspect : return container run time configuration parameter metadata
+
+- Working directory of docker: /var/lib/docker
+
+- docker logs: show log data for a running or stopped container
+
+- docker system prune : This will remove
+	- all stopped containers
+  	- all networks not used by at least one container
+  	- all dangling images
+  	- all dangling build cache
+
+- docker volume prune: This will remove all local volumes not used by at least one container.
+
+- docker top: List running process
+	docker top <ContName/ID>
+
+- docker stats: resource consumption
+	
+- docker run --memory="512Mi" --cpus="0.5"				#Allocate memory and cpu
+	
+- docker logs <ContName/ID>	#Display container logs,whatever has been sent to stdout and stderror.
+	docker logs <ContName/ID> --tail 10
+	docker logs <ContName/ID> -f 			#Floating logs
+	docker logs <ContName/ID> >>logs.txt
+
+- docker exec <ContainerID> command
+	docker exec -it java /bin/bash
+	
+- docker commit: retain changes made in container
+	doocker commit <ContName/ID> <ImageID>	
+
+- docker attach	#It will attach your container precoess to host shell
+
+- docker cp <SourceFilePATH> <ContName/ID:/DestinationPath>	#copy files to conatiner
+
+- docker cp <ContName/ID:/SourceFilePath> <DestinationPath>
+
+docker cp vs COPY
+	COPY: Copy file to the image while creating.
+	cp:	copy files from docker host to container or container to docker to host. 	
+	
+* Can we run multiple processes inside a container?
+	- Yes tchnically we can run but it is not recommended.
+
+
+* AWS Private Repository:
+	- Install AWS CLI : sudo apt install awscli
+	- Create IAM role for ec2 and provide ECR full access.
+	- Run AWS ECR Commands
+	- docker build -t <Private Regi/Repo>:1
+	- docker push

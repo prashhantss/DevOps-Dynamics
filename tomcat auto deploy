@@ -1,0 +1,45 @@
+<role rolename="manager-gui"/>
+	<role rolename="manager-script"/>
+	<user username="admin" password="password" roles="manager-gui,manager-script" />
+  
+ user.xml
+ 
+ 
+ %MAVEN_PATH%/conf/settings.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<settings ...>
+	<servers>
+	   
+		<server>
+			<id>TomcatServer</id>
+			<username>admin</username>
+			<password>password</password>
+		</server>
+
+	</servers>
+</settings>
+
+
+
+pom.xml
+
+
+	<plugin>
+		<groupId>org.apache.tomcat.maven</groupId>
+		<artifactId>tomcat7-maven-plugin</artifactId>
+		<version>2.2</version>
+		<configuration>
+			<url>http://localhost:8080/manager/text</url>
+			<server>TomcatServer</server>
+			<path>/mkyongWebApp</path>
+		</configuration>
+	</plugin>
+
+
+
+mvn tomcat7:deploy 
+mvn tomcat7:undeploy 
+mvn tomcat7:redeploy 
+
+

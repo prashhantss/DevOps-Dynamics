@@ -1,0 +1,107 @@
+SonarQube is a web-based open source platform used to measure and analyse the source code quality. Code quality analysis makes your code more reliable and more readable. SonarQube is written in java but it can analyze and manage code of more than 20 programming languages, including c/c++, PL/SQL, Cobol etc through plugins. Plugins extend the functionality of SonarQube. More than 50 plugins are available.
+
+
+Installation Of SonarQube:
+
+Pre Requisite:
+
+SonarQuber Server
+Jenkins Server
+
+
+#Install java.
+yum install java-11-openjdk-devel -y
+
+find /usr/lib/jvm/java-11* | head -n 3
+
+#Download the SonarqQube Server software.
+cd /opt
+yum install wget unzip -y
+wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.9.10.61524.zip
+
+unzip sonarqube-8.9.10.61524.zip
+mv sonarqube-8.9.10.61524 sonarqube
+
+#As a good security practice, SonarQuber Server is not advised to run sonar service as a root user, so create a new user called sonar user  and grant sudo access to manage nexus services as follows.
+useradd sonar
+passwd sonar
+
+Give the sudo access to sonar user
+visudo
+
+sonar   ALL=(ALL)       NOPASSWD: ALL
+
+Change the owner and group permissions to /opt/sonarqube/ directory.
+chown -R sonar:sonar /opt/sonarqube/
+chmod -R 775 /opt/sonarqube/
+su - sonar
+cd /opt/sonarqube/bin/linux-x86-64/
+
+./sonar.sh start
+
+./sonar.sh status
+
+Troubleshooting
+--------------------
+
+sonar service is not starting?
+
+a)make sure you need to change the ownership and group to /opt/sonarqube/ directory for sonar user.
+b)make sure you are trying to start sonar service with sonar user.
+c)check java is installed or not using java -version command.
+
+Unable to access SonarQube server URL in browser?
+
+a)make sure port 9000 is opened in security groups - AWS ec2 instance.
+
+Create SonarQube server as a sonar service
+--------------------------------------------------------
+
+ln /opt/sonarqube/bin/linux-x86-64/sonar.sh /etc/init.d/sonar
+
+vi /etc/init.d/sonar
+
+#add below lines in /etc/init.d/sonar
+
+SONAR_HOME=/opt/sonarqube
+PLATFORM=linux-x86-64
+
+WRAPPER_CMD="${SONAR_HOME}/bin/${PLATFORM}/wrapper"
+WRAPPER_CONF="${SONAR_HOME}/conf/wrapper.conf"
+PIDDIR="/opt/sonarqube/"
+
+#Enable the sonar service
+sudo systemctl enable sonar
+
+#Start the sonar service
+sudo systemctl start sonar
+
+#Check the status of the  sonar service
+sudo systemctl status sonar
+
+#Set Login Credintials 
+username: admin
+password: admin
+Administrator>Configuration>Security>Force User Authentication
+-------------------------------------------------------------------------------------------------------------
+
+#Port and Context Path Change:
+
+vi /opt/sonarqube/conf/sonar.properties
+
+sonar.web.conetxt=/prashhantss 
+sonar.web.conetxt=/PortNumber
+
+cd ../bin/linux-x86-64/
+
+sh sonar.sh restart
+
+systemctl start sonarqube.service 
+
+service docker start
+docker run -d -p 9000:9000 --name sonarqube
+docker run -d -p 8081:8081 --name nexus sonatype/nexus3
+docker start nexus
+
+
+docker exec -it nexus /bin/bash
