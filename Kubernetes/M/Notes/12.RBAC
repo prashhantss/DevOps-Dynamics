@@ -1,0 +1,184 @@
+RBAC: Role Based Access Control
+
+- RBAC is a way to define which users can do what within a Kubernetes cluster.
+- When a request is sent to the API Server, it first needs to be authenticated using IAM, LDAP (to make sure the requestor is known by the system) 
+  before it’s authorized (to make sure the requestor is allowed to perform the action requested).
+  
+  cat /root/.kube/config
+
+- Broadly, there are three kinds of users that need access to a Kubernetes cluster: 
+
+1. Developers/Admins: Users that are responsible to do administrative or developmental tasks on the cluster. This includes operations like upgrading 
+   the cluster or creating the resources/workloads on the cluster. 
+
+2. End Users: Users that access the applications deployed on our Kubernetes cluster. Access restrictions for these users are managed by the applications themselves.
+   For example, a web application running on Kubernetes cluster, will have its own security mechanism in place, to prevent unauthorized access. 
+
+3. Applications/Bots: There is a possibility that other applications need access to Kubernetes cluster, typically to talk to resources or workloads inside the cluster.
+   Kubernetes facilitates this by using Service Accounts.
+   
+- RBAC in Kubernetes is based on three key concepts: 
+1. Verbs: Action or Permissions 
+- This is a set of operations that can be executed on resources. There are many verbs, but they’re all Create, Read, Update, or Delete (also known as CRUD). 
+2. API Resources: Kubernetes objects/Workloads/Resources
+- These are the objects available on the clusters. They are the pods, services, nodes, Persistent Volumes and other things that make up Kubernetes. 
+3. Subjects: User or Group or ServiceAccount
+- These are the objects (Users, Groups, Processes(Service Account)) allowed access to the API, based on Verbs and Resources.
+
+RBAC Role
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+namespace: mynamespace
+name: example-role
+rules:
+- apiGroups: [""]
+resources: ["pods"]
+verbs: ["get", "watch", "list","update","delete"]
+- apiGroups: [""]
+resources: ["services"]
+verbs: ["get", "watch", "list","update"]
+- apiGroups: ["apps"]
+resources: ["deployment"]
+verbs: ["get", "watch", "list","update"]
+
+
+In the rules above we: 
+1. apiGroups: [""] – set core API group(with v1)
+  kubectl api-versions
+2. resources: ["pods"] – which resources are allowed for access 
+3. ["get", "watch", "list"] – which actions are allowed over the resources above
+
+
+RBAC RoleBingding To “map” those permissions to users we are using Kubernetes RoleBingding, which sets example-role in the mynamespace 
+for the example-user user:
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+name: example-rolebinding
+namespace: mynamespace
+subjects:
+- kind: User
+name: example-user
+apiGroup: rbac.authorization.k8s.io
+roleRef:
+kind: Role
+name: example-role
+apiGroup: rbac.authorization.k8s.io
+
+Here we set: 
+subjects: 
+    - kind: User – an object type which will have access, in our case this is a regular user
+    - name: example-user – a user’s name to set the permissions
+    
+roleRef:
+    - kind: Role – what exactly will be attached to the user, in this case, it is the Role object type 
+    - name: example-role – and the role name as it was set in the name: example-role in the example above
+
+Cluster Role and Cluster Role Binding:
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+name: example-clusterrole
+rules:
+- apiGroups: [""]
+resources: ["pods"]
+verbs: ["get", "watch", "list"]
+
+And a ClusterRoleBinding example:
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+name: example-clusterrolebinding
+subjects:
+- kind: User
+name: example-user
+apiGroup: rbac.authorization.k8s.io
+roleRef:
+kind: ClusterRole
+name: example-clusterrole
+apiGroup: rbac.authorization.k8s.io
+
+*you’ll not be able to edit its roleRef value – instead, you’ll have to delete a Binding and recreate and again.
+
+Difference between role and Cluster Role
+- The difference is that Role is used inside of a namespace, while ClusterRole is cluster-wide permission without a namespace boundaries.
+- Kubernetes also has RoleBinding and ClusterRoleBinding objects.
+
+IAM Based Authentication:
+
+
+update eks kubeconfig file
+IAM user
+Create policy
+Choose Service-EKS
+Access Level- Lis, Read
+Select Cluster
+Attach Policy To Group/User
+kubectl get nodes
+
+kubectl get configmap -n kube-system
+kubectl get clusterrole system:node
+kubectl edit configmap aws-auth -n kube-system
+
+apiVersion: v1
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::921483055369:role/EKS_Node_Role
+      username: system:node:{{EC2PrivateDNSName}}
+  mapUsers: |
+    - userarn: arn:aws:iam::935840844891:user/prashhantss          # Update your user arn here
+      username: prashhantss                                        # Update your user name.
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-10-19T03:35:20Z"
+  name: aws-auth
+  namespace: kube-system
+  resourceVersion: "792449"
+  selfLink: /api/v1/namespaces/kube-system/configmaps/aws-auth
+  uid: 8135dcd1-90e6-4dfb-872f-636601475aca
+  
+  
+## Create Role/ClusterRole & RoleBinding & ClusterRoleBinding#####
+
+vi rbac_role.yml
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: default
+  name: readonly
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get","list","create","delete","update"]
+- apiGroups: ["apps"]
+  resources: ["deployments","replicasets","daemonsets"]
+  verbs: ["get","list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: full_access_role_binding
+  namespace: default
+subjects:
+- kind: User
+  name: prashhantss                           # Map with username
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: readonly
+  apiGroup: rbac.authorization.k8s.io
+
+
+kubectl apply -f rbac_role.yml
+kubectl get role
+kubectl get rolebinding
+kubectl get pods

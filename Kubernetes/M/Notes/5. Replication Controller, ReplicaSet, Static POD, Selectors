@@ -1,0 +1,127 @@
+3. REPLICATION CONTROLLER:
+- Key feature of kubernetes.
+- Responsible for managing the pod lifecycle and making sure that specified number of pod replica are running at any point of time.
+- It is structure that enables you to easily create multiple pods.
+- If pod goes down, replication controller replaces it.
+- Replication controller and PODS are associated with labels.
+- Creating RC with count"1" ensure that pod is always available.
+- Identify PODS using selector.
+
+STATIC PODS:
+- Static ports are directly managed by kubelet.
+- kubelet is responsible to watch each static pod and restart if it crashes.
+- Static pods running on a node are visible on the API server but cannot be controlled by API server.
+- Static pod does not have any replication controller. There is no health check for the static pods.
+- control plane components are static pods.
+- The main use for static Pods is to run a self hosted control plane: in other words, using the
+- Static pods are always bound to one kubelet on a specific node.
+- To create static pod, place pod manifest in /etc/kubernetes/manifests/
+
+- kubectl get pods -n kube-system
+- kubectl get ds -n kube-system
+- kubectl get deployment -n kube-system
+
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: <RCName>
+  namespace: <namespaceName>
+spec:
+  replicas: <NumberOfReplicas>
+  template:	#POD template/information
+    metadata:
+      name: <PODName>
+      labels:
+	key: value
+    spec:
+      containers:
+	  - name: <NameOfContainer>
+	    image: <ImageName>
+		ports:
+		- containerPort: <ContainerPort>
+		
+
+
+vi replication-controller.yml
+
+		
+kubectl get all
+kubectl apply -f replication-controller.yml
+kubectl get all
+curl <ClusterIP>
+Outside: NodeIP:8080
+kubectl delete pod <podname>
+
+kubectl logs <PODName>
+kubectl exec -it <podname> bash or sh
+kubectl get rc
+kubectl get pods
+kubectl get svc
+kubectl get svc -o wide
+kubectl get pods --show-labels
+kubectl get all
+kubectl scale rc javawebapprc --replicas 3	#scale up/down replications
+kubectl get all
+kubectl describe svc javawebasppsvc
+kubectl get pods --show-labels
+
+
+
+4. REPLICA SET:
+	- Next genration of replication controller. We can scale up/down PODS
+	- It supports selctor.
+	
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: <RCName>
+  namespace: <namespaceName>
+spec:
+  replicas: <NumberOfReplicas>
+  selector:			#Equality Based Selector
+    app: javawebapp
+    version: one
+  template:	#POD template/information
+    metadata:
+      name: <PODName>
+	labels:
+	  key: value
+	spec:
+	  containers:
+	  - name: <NameOfContainer>
+	    image: <ImageName>
+		ports:
+		- containerPort: <ContainerPort>
+
+
+SELECTORS:
+1. Equality Based Selector: Equals conditions.
+	selector:
+	  key: value
+2. Set Base selector: Condition based
+	selector:
+	  matchExpresions:
+	  - key: app
+		operator: in
+		values:
+		- javawebapp
+		-javaweb
+
+vi replica-set.yml
+
+
+kubectl apply -f replica-set.yml
+kubectl get svc -o wide
+curl <ClusterIP>
+kubectl get pods --show-labels
+kubectl edit svc mavenwebappsvc
+sudo netstat -tulnp
+kubectl get all
+kubectl scale rs mavenwebapprs --replicas 3
+kubectl get pods
+kubectl exec podname -c containername ls
+kubectl exec podname -c mavenwebappcontainer -- pwd
+kubectle exec -it podname /bin/bash
+kubectl logs podname

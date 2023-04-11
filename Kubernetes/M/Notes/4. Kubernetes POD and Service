@@ -1,0 +1,141 @@
+1. PODS:
+- POD always runs on a node.
+- Containers are wrapped in unit called POD.
+- Smallest building block which is deployed in Kubernetes cluster.
+- POD represents the running process.
+- Inside pod, can have single/multi containers which Share unique network IP, Storage, network and any other application.
+
+Pod Lifecycle:
+- Pod request to API server using local pod defination file.
+- API server saves the info for the pod in ETCD.
+- Scheduler finds unsheduled pod and schedules into node.
+- kubelet running on node, sees the pod scheduled and fires up docker.
+- Docker runs the container.
+- Entire pod lifecycle is stored in ETCD.
+
+Pod Model Types:
+- One container per POD
+- Multi container or Sidecar container POD.
+- In this model, a pod can hold multiple co located containers primary container And utility container that helps or enhances how an application functions.
+	
+- Interative:
+- kubectl run --name <PODName> --image=<ImageName> --generator=run-pod/v1
+- kubectl run --name javawebapp --image=prashhantss/java-web-app --generator=run-pod/v1
+		
+
+- Declarative:
+
+Manifest.yml	
+apiversion:1
+kind: Pod
+metadata:
+  name: <PodName>
+  labels:
+	<key>: <value>
+spec:
+  containers:
+  - name: <ContainerName>
+    image: <ImageName>
+    ports:
+  - containerPort: <ContainerPort>
+
+
+vi java-web-app-pod.yml
+
+- kubectl apply -f javawebapppod.yml
+- kubectl get pods
+- kubectl get events
+- kubectl describe pod javawebapppod
+- kubectl get pods -o wide
+- curl PODIP:8080         #Access within the cluster
+
+PODIP: Pod Ip may change, 
+
+
+2. SERVICES:
+- Service makes pods accesible/discoverable within the cluster or outside the cluster.
+- Service will get Virtual/Cluster IP which will be registered in kubernetes dns with it's name.
+- Other applications can communicate within the cluster using service name.
+- Service will identify pods based on labels and selectors.
+- Service is just a logical concept, actual work done by kube-proxy which redirect requests from ClusterIP to POD IP.
+- If service has multiple containers then it will act as a Load Balancer.
+
+Docker Service Vs Kubernetes Service?
+Group of containers + Communication Vs Communication
+a. ClusterIP	b. NodePort	c. LoadBalancer
+
+a. ClusterIP: 
+- Exposes the service on Cluster Internal IP.
+- Reachable within the cluster.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: <ServiceName>
+  namespace: <namespaceName>
+spec:
+  type: <TypeOfService>
+  selector:		#Labels of the pod as selector.
+    <key>: <Name>
+  ports:
+  - port: <servicePort>
+    targetPort: <ContainerPort>
+
+
+- kubectl get  pods -n kube-system
+- kubectl get pods --show-labels
+- kubectl get all
+
+
+vi cluster-ip-service.yml
+
+- kubectl apply -f javawebappservice.yml
+- kubectl get svc
+- curl <serviceIP>
+- kubectl describe service javawebappsvc
+- kubectl run -it --rm testservice --image=ubuntu
+- curl javawebappservice
+- kubectl delete service javawebappsvc
+
+b. NodePort:
+- Exposes the service on each node's IP at a static port.
+- A ClusterIP service, to which the NodePort service will route, is automatically created. 
+- You’ll be able to contact the NodePort service, from outside the cluster, by using NodeIP NodePort
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: <ServiceName>
+  namespace: <namespaceName>
+spec:
+  type: <NodePort>
+  selector:		#Labels of the pod as selector.
+    <key>: <Name>
+  ports:
+  - port: <servicePort>
+    targetPort: <ContainerPort>
+	nodePort: <nodeport>	#Node Port Range In K8s:30000-32767
+
+vi node-port-service.yml
+
+- kubectl get svc
+- sudo netstat -tulnp
+- kubectl apply -f nodeportsvc.yml
+- kubectl get svc
+- Access outside: AnyNodePublicIP:ServiceNodePort
+- sudo netstat -tulnp #In Any Node
+
+POD Concept:
+- Pod will have a label and service will communicate pod with the help of selcetor.
+- Pod is ephemeral and won't be rescehduled to a new node.
+- You should not directly create a pod. For deployment, kubernetes have controllers like Rplica Sets, Deployment and Daemon Sets, 	Replication Controller to keep pod alive.
+
+- kubectl get all 
+- kubectl get rc
+- kubectl get rs
+- kubectl get ds
+- kubectl get deployment
+- kubectl delete pod javawebapppod
+- kubectl get all
+- curl <ClusterIP>
+- kubectl describe svc javawebappsvc

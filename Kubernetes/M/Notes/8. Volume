@@ -1,0 +1,107 @@
+Volume:
+
+Types of volumes used in Kubernetes:
+- hostPath: container directory with host file system
+- emptyDir: Temporary storage
+- nfs
+- configMap
+- EBS
+- googlePersistentDisk
+- azureFile
+- azureDisk
+- persistantVolumeClaim
+- persistentVolume
+
+HostPath:
+kubectl apply -f volume1-hostpath.yml --dry-run=client
+kubectl apply -f volume1-hostpath.yml
+kubectl get all
+kubectl get pods
+kubectl get pods -o wide
+kubectl delete pod mongodbrs-2t69p
+
+NFS:
+Create NFS Server(NFS Port:2049)
+kubectl apply -f volume2-NFS.yml
+
+
+Persistent Volumes
+- piece of storage/disk drive in your cluster.It exists independently from any pods that may consume it. 
+- Persistent Volumes are provisioned in two ways, Statically or Dynamically.
+
+a. Static Volumes
+- Created manually by K8S administrator which can be used/claimed by PODS whenever required.
+
+b. Dynamic Volumes
+- when Pod require volume that doesn't exist, in those cases pod will get an access to the volume with the help of PVC as needed 
+  if the storage classes are configured for dynamic volume.
+- Storage class: Driver which creates persistent volumes when we dont have pv in cluster.
+
+Access Modes:
+
+a. ReadWriteOnce
+- volume can be mounted as read-write by a single node. ReadWriteOnce access mode still can allow multiple pods to access 
+  the volume when the pods are running on the same node.
+  
+b. ReadOnlyMany
+ - volume can be mounted as read-only by many nodes.
+
+c. ReadWriteMany
+  - volume can be mounted as read-write by many nodes.
+
+d. ReadWriteOncePod
+- volume can be mounted as read-write by a single Pod. 
+- Use ReadWriteOncePod access mode if you want to ensure that only one pod across whole cluster can read that PVC or write to it. 
+- This is only supported for CSI volumes and Kubernetes version 1.22+.
+
+
+
+Persistent Volume Claims
+- If Pod require volume, pod will get an acces sto the volume with help of PVC.
+- Need to make volume request by creating PVC by specifying size, storage clss and access mode.
+- PVC will be associated with PV.
+
+
+MANUAL:
+kubectl get pv
+kubectl get pvc 
+kubectl get storageclass
+kubectl apply -f volume3-pvc-manual.yml
+kubectl get pvc
+kubectl describe pvc 
+kubectl describe pod
+kubectl apply -f hostpathpv.yml
+kubectl apply -f NFSVolumeManual.yml
+
+
+Reclaim Policies:
+
+a. Retain
+When the PVC is deleted, the PV still exists and the volume is considered "released". But it is not yet available for another
+claim because the previous claimant's data remains on the volume. An administrator we can manually reclaim the
+volume.
+
+b. Recycle
+When the claim is deleted the volume remains but performs a basic scrub(delete data from storage) ( rm rf /volume/*)
+on the volume and makes it available again for a new claim.
+
+c. Delete
+When the claim is deleted, it removes both the Persistent Volume object from Kubernetes, as well as the associated storage.
+The claim policy (associated at the PV and not the PVC) is responsible for what happens to the data on when the claim has been 
+deleted
+
+
+DYNAMIC:
+
+kubectl apply -f NFSProvisioner.yml
+kubectl get storageclass
+kubectl apply -f volume4-pvc-dynamic
+kubectl get storageclass
+kubectl get pv
+kubectl get pvc
+kubectl get pvc
+kubectl get pods
+kubectl pods -n kube-system
+
+
+

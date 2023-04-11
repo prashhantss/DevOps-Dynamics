@@ -1,0 +1,105 @@
+5. DAEMON SET:
+	- Each and every node will have a copy of the pod
+	- we can deploy using daemon set when any software which is required to run in each and every node
+
+
+vi daemonset.yml
+
+kubectl apply	#apply: combination of create and update
+kubectl create
+kubectl update
+kubectl delete
+kubectl apply -f daemonset.yml
+kubectl get all
+kubectl config  set-context --current --namespace=<namespaceName>
+
+Troubleshooting:
+Nodes are ready or not?
+	
+kubectl describe node <nodename>
+kubectl get all
+kubectl get rs
+kubectl get rs <RSname> -o yaml
+kubectl get pods <podname> -o yaml
+kubectl delete pod <podname>
+kubectl get pods <podname> -o yaml 
+
+
+6. DEPLOYMENT:
+- In Kubernetes, Deployment is the recommended way to deploy Pod or RS, simply because of the advance features it comes with.
+- Below are some of the key benefits.
+	Deploy a RS.
+	Updates pods ( PodTemplateSpec ).
+	Rollback to older Deployment versions.
+	Scale Deployment up or down.
+	Pause and resume the Deployment.
+	Use the status of the Deployment to determine state of replicas.
+	Clean up older RS that you don’t need anymore.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <DeploymentName>
+  namespace: <NamespaceName>
+  labels:
+    <Key>: <value>
+    <Key>: <value>
+spec:
+  replicas: <NoOfReplicas>
+  stratergy:
+    type: <DeploymentStratergy>
+  selector:
+    matchLabels:
+	<Key>: <Value>
+  template:
+    metadata:
+      name: <PodName>
+      labels:
+	<key>: <value>
+    spec:
+	  containers:
+	  - name: <ContainerName>
+	    image: <ImageName>
+	    ports:
+	    - containerPort: <ContainerPort>
+
+
+RECREATE: vi deploymentset-recreate.yml
+
+kubectl get all
+kubectl apply -f deploymentset-recreate.yml
+kubectl get all
+kubectl rollout history deployment javadeployment
+kubectl rollout status deployment javadeployment
+kubectl rollout history deployment javadeployment --revision 1
+kubectl get all
+kubectl get svc <ServiceName>
+watch kubectl get pods
+Update deployment.
+
+kubectl rollout history deployment javadeployment
+kubectl apply -f deploymentset-recreate.yml --record=true
+kubectl get deployment
+kubectl rollout history deployment javadeployment
+kubectl get all
+kubectl rollout undo deployment javadeployment --to-revision 1
+kubectl delete deployment javadeployment
+kubectl get all
+
+
+
+ROLLING UPDATE: vi deployment-rollingupdate.yml
+
+kubectl apply -f deployment-rollingupdate.yml --record=true
+kubectl get deployment
+kubectl set image deployment javadeployment javacontainer=prashhantss/java-web-app:1 --record=true
+kubectl get pods
+kubectl rollout history deployment javadeployment
+kubectl rollout history deployment javadeployment --revision 1
+kubectl scale deployment javadeployment --replicas 3
+
+
+What is Blue Green Deployment?
+- One type of deployment approach 
+- Need more resources.
+

@@ -1,0 +1,326 @@
+Self Managed K8's Cluster
+minikube --> Single Node K8's Cluster.
+kubeadm --> We can setup multi node k8's cluster using kubeadm.
+
+Cloud Managed(Managed Services)
+EKS --> Elastic Kubernetes Service(AWS)
+AKS --> Azure Kubernetes Service(Azure)
+GKE --> Google Kubernetes Engine(GCP)
+
+KOPS --> Kubernetes Operations is a sotware using which we can create production ready highily available kubenetes services in Cloud like AWS.
+KOPS will leverage Cloud Sevices like AWS AutoScaling & Lanuch Configurations to setup K8's Master & Workers. It will Create 2 ASG & Lanuch 
+Configs, one for master and one for worekrs. These Auto Scaling Groups will manage EC2 Instances.
+
+EKS --> Elastic Kubernetes Service(AWS):
+- Fully managed kubernetes service.
+- Provide security, reliability and security.
+- EKS can be integrated with other AWS services such as ELB, CloudWatch, Auto Scaling groups, IAM, VPC to monitor, scale and load balance.
+- Makes it easy to install, operate without mainatain your own kubernetes control plane.
+
+Managed Control Plane:
+- EKS provides scalable and highly available control plane. 
+- EKS automatically manages the avilability and scalability of kubernetes API servers and etcd for each cluster.
+
+Cluster Setup
+1) Create IAM Role For EKS Cluster.
+      EKS – Cluster 
+2) Create Dedicated VPC For EKS Cluster. Using CloudFormation. 
+     https://amazon-eks.s3.us-west-2.amazonaws.com/cloudformation/2020-08-12/amazon-eks-vpc-private-subnets.yaml 
+3) Create EKS Cluster.
+
+
+Setup K8s Client Machine
+1) Install Kubernetes 1.24
+
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.24.9/2023-01-11/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+kubectl version --short --client
+
+2) Download AWS CLI ZIP
+    
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
+
+3) Configure AWS CLI using ACCESS Key & Secret Key
+aws configure
+
+4) Get KubeConfig file
+ls ~/.
+aws eks update-kubeconfig --name EKS --region ap-south-1
+cat /root/.kube/config
+kubectl get nodes
+kubectl get pods
+kubectl get ns
+kubectl get pods -n kube-system
+
+
+Setup Worker Nodes:
+1) Create IAM Role For EKS Worker Nodes.
+        AmazonEKSWorkerNodePolicy
+        AmazonEKS_CNI_Policy
+        AmazonEC2ContainerRegistryReadOnly
+        
+2) Create Node Group
+3) Create Worker Nodes.
+
+kubectl get nodes
+kubectl get pods
+kubectl get ns
+kubectl get pods -n kube-system
+
+
+
+Setup EKS using eksctl:
+
+1)Setup eksctl:
+- curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+- sudo mv /tmp/eksctl /usr/local/bin
+- eksctl version
+
+2) Setup EKS Cluster
+- eks-cluster.yml
+- eksctl create cluster -f eks-cluster.yml
+3)Update kubeconfig
+- aws eks update-kubeconfig --name basic-cluster --region ap-south-1
+- kubectl config view
+- eksctl upgrade nodegroup --cluster basic-cluster --name ng-1 -f eks-cluster.yml
+
+
+eksctl delete nodegroup --cluster basic-cluster1 --name=ng-1 --disable-eviction
+eksctl delete nodegroup --cluster=<clusterName> --name=<nodegroupName> --disable-eviction
+kubectl cluster-info
+kubectl create deployment myweb --image=vimal13/apache-webserver-php
+kubectl get pods -o wide
+kubectl scale deployment myweb --replicas=3
+kubectl expose deployment myweb --type=LoadBalancer --port=80
+kubectl get pvc
+kubectl get pv
+kubectl get sc
+pvc.yml
+kubectl create -f pvc.yml
+
+
+
+
+
+
+
+Launch Deployment using EKS
+vi javawebapp.yml
+kubectl apply -f javawebapp.yml
+
+sudo yum install bind-utils -y
+nslookup external IP
+sudo vi /etc/hosts
+
+kubectl get pods -o wide
+
+If something goes wrong with a pod kubernetes will recreate the pod and in case if node goes down aws autoscaling group will relaunch the nodes
+based on autoscalin configuration and will be attached to load balancer.
+
+Request will go to DNS server and DNS server will try to match domain name with IP address.
+Then request will go to load balancer on port 80 and load balancer will forward that request to instance port/node port/service port.
+Service will route traffic to kube proxy and kube proxy will forward traffic to POD.
+
+
+kubectl get pods
+kubectl scale deploymet javadeployment --replicas 8
+kubectl get pods -o wide
+kubectl scale deploymet javadeployment --replicas 12
+kubectl get pods -o wide
+
+Create Cluster Autoscaler(To scale cluster nodes automatically)
+
+vi autoscaler.yml #Update cluster name
+kubectl apply -f autoscaler.yml
+kubectl get nodes
+kubectl get pods
+kubectl get pods -n kube-system
+kubectl logs cluster-autoscaler -n kube-system
+
+1) Create AWS policy with below Actions .
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:DescribeAutoScalingInstances",
+                "autoscaling:DescribeLaunchConfigurations",
+                "autoscaling:DescribeTags",
+                "autoscaling:SetDesiredCapacity",
+                "autoscaling:TerminateInstanceInAutoScalingGroup",
+                "ec2:DescribeLaunchTemplateVersions"
+            ],
+            "Resource": "*",
+            "Effect": "Allow"
+        }
+    ]
+}	  
+
+2) Attach policy to IAM Role which is used in EKS Node Group.
+	
+3) Deploy ClusterAutoScaler using below yml(Make sure u update - --node-group-auto-discovery values with your cluster name under cluster-autoscaler deployment commands.)
+
+
+kubectl apply -f clusterautoscaler.yml
+kubectl get nodes
+kubectl get pods
+kubectl get pods -n kube-system
+kubectl logs cluster-autoscaler -n kube-system
+kubectl get nodes
+
+kubectl scale deployment javawebappdeployment --replicas 19
+kubectl scale deployment javawebappdeployment --replicas 22
+kubectl logs cluster-autoscaler -n kube-system
+kubectl scale deployment javawebappdeployment --replicas 2
+kubectl logs cluster-autoscaler -n kube-system
+
+kubectl get storageclass
+
+
+
+Kubernetes Ingress:
+- Resource to add rules for routing traffic from external sources to the services in the K8S Cluster.
+
+Ingress Controller:
+- A proxy service deployed in the cluster which is exposed to services.
+1. Nginx
+2. Traefik
+3. HAproxy
+4. Contour
+5. GKE ingress controller
+6. Istio
+
+kubectl get svc
+kubectl delete svc javasvc
+kubectl delete svc mavenwebappsvc
+
+1. Create service of type ClusterIP
+kubectl apply -f mavenapp-ingress.yml
+kubectl apply -f javaapp-ingress.yml
+kubectl get svc
+
+2. Create a Namespace And SA
+ kubectl apply -f common/ns-and-sa.yaml
+ 
+3. Create RBAC, Default Secret And Config Map
+ kubectl apply -f common/
+ 
+4. Deploy the Ingress Controller
+ Deployment. Use a Deployment if you plan to dynamically change the number of Ingress controller replicas.
+ DaemonSet. Use a DaemonSet for deploying the Ingress controller on every node or a subset of nodes.
+ 
+4.1 Create a DaemonSet
+ kubectl apply -f daemon-set/nginx-ingress.yaml
+ kubectl get nodes
+ kubectl get all -n nginx-ingres
+ 
+5. Check that the Ingress Controller is Running
+ kubectl get pods --namespace=nginx-ingress
+ 
+6. Get Access to the Ingress Controller
+ 
+6.1 Create a service with the type LoadBalancer. Kubernetes will allocate and configure a cloud load balancer for load balancing the Ingress
+controller pods.
+For AWS, run:
+kubectl apply -f service/loadbalancer-aws-elb.yaml
+kubectl get all -n nginx-ingress
+
+6.2 To get the DNS name of the ELB, run:
+
+kubectl describe svc nginx-ingress --namespace=nginx-ingress
+OR
+kubectl get svc -n nginx-ingress 
+
+You can resolve the DNS name into an IP address using nslookup:
+nslookup <dns-name>
+
+7. Define path based or host based routing rules for your services.
+
+vi hostbased.yml
+kubectl get ingress
+kubectl apply -f hostbased-ingress.yml
+kubectl get storageclass
+
+
+
+kubectl create secret generic springappsecrets --from-literal=password=devdb@123
+kubectl create configmap springappconfigmap --from-literal=username=devdb
+
+Using Yml:
+	
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: springappconfigmap
+data:            # We can define multiple key value pairs.
+  username: devdb
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: springappsecrets
+type: Opaque
+stringData:   # We can define multiple key value pairs.
+  password: devdb@123
+ 
+vi mongodb-ingress.yml 
+kubectl get pv
+kubectl apply -f mongodb-ingress.yml
+kubectl get pv
+verfy volumes in AWS
+
+ Route53>hosted zone>create record>
+ springapp.prashantss.online
+ 
+vi springapp-path.yml
+kubectl apply -f springapp-path.yml
+kubectl get pods 
+
+
+
+Ingress with Https Using Self Signed Certificates:
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out mithun-ingress-tls.crt -keyout mithun-ingress-tls.key -subj "/CN=javawebapp.mithuntechdevops.co.in/O=mithun-ingress-tls"
+
+# Create secret for with your certificate .key & .crt file
+kubectl create secret tls mithun-ingress-tls --namespace default --key mithun-ingress-tls.key --cert mithun-ingress-tls.crt
+
+Mention tls/ssl(certificate) details in ingress
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mithuntechappingressrule
+  namespace: test-ns
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+      - mithuntechdevops.co.in
+    secretName: mithun-ingress-tls
+  rules:
+  - host: mithuntechdevops.co.in
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/java-web-app"
+        backend:
+          service:
+            name: javawebappsvc
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/maven-web-application"
+        backend:
+          service:
+            name: mavenwebappsvc
+            port:
+              number: 80
+

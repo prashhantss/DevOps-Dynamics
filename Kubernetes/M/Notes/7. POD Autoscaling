@@ -1,0 +1,52 @@
+POD Autoscaling:
+
+HPA: Horizontal Pod Autosaler
+VPA: Veritcal Pod Autosaler
+
+1. HPA
+- Automatically scales the number of pods in replication controller, deployment, replicaset based on observed by metric server 
+  to identify CPU/Memory utilization.
+- Inmplemented as kubeernetes API resource and controller.
+-   is an add-on application which collects metrics from objects such as pods, nodes according to the state of CPU, RAM.
+kubectl get nodes
+kubectl top nodes
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl get deployment metrics-server -n kube-system
+
+kubectl edit deployment -n kube-system metrics-server
+- --kubelet-insecure-tls
+kubectl get deployment metrics-server -n kube-system
+kubectl get all -n kube-system
+kubectl top node
+kubectl top pods
+
+
+vi horizontal-pod-autoscaler.yml
+kubectl apply -f horizontal-pod-autoscaler.yml
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+kubectl get hpa php-apache -o yaml
+kubectl get all
+
+kubectl run -i --tty load-generator --rm  --image=busybox /bin/sh
+while true; do wget -q -O- http://php-apache; done
+
+kubectl get hpa php-apache --watch
+kubectl get deployment php-apache
+watch kubectl top pods
+
+Create deployment with max resources.
+describe pod and check.
+
+
+#Uninstall Metrics-Server 
+kubectl delete service/metrics-server -n  kube-system
+kubectl delete deployment.apps/metrics-server  -n  kube-system
+kubectl delete apiservices.apiregistration.k8s.io v1beta1.metrics.k8s.io
+kubectl delete clusterroles.rbac.authorization.k8s.io system:aggregated-metrics-reader
+kubectl delete clusterroles.rbac.authorization.k8s.io system:metrics-server 
+kubectl delete clusterrolebinding metrics-server:system:auth-delegator
+kubectl delete clusterrolebinding system:metrics-server          
+kubectl delete rolebinding metrics-server-auth-reader -n kube-system 
+kubectl delete serviceaccount metrics-server -n kube-system
+

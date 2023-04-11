@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wildcard-host
+spec:
+  rules:
+  - host: "javawebapp.prashhantss.online"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/java-web-app"
+        backend:
+          service:
+            name: javawebappsvc
+            port:
+              number: 80
+  - host: "mavenwebapp.prashhantss.online"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/maven-web-application"
+        backend:
+          service:
+            name: mavenwebappsvc
+            port:
+              number: 80

@@ -1,0 +1,81 @@
+Scheduling:
+- Kubernetes scheduler ensures that the right node is selected by checking the node’s capacity for CPU and RAM and comparing it to the Pod’s resource requests.
+
+nodeSelector: 
+- This is a simple Pod scheduling feature that allows scheduling a Pod onto a node whose labels match the nodeSelector labels specified by the user.
+
+#Show Labels
+kubectl get nodes --show-labels
+
+#Add New Lable
+kubectl label nodes <node-name> <label-key>=<label-value>
+
+kubectl label nodes ip-172-31-86-188 name=WorkerOne
+kubectl label nodes ip-172-31-83-235 name=WorkerOne
+
+kubectl apply -f node-selector.yml
+
+Kubernetes also offers advanced scheduling features: node affinity ,taints and tolerations.
+
+nodeaffinity:The affinity greatly expands the nodeSelector functionality introducing-
+1.	Affinity language is more expressive (more logical operators to control how Pods are scheduled).
+2.	Users can now “soft” scheduling rules. If the “soft” rule is not met, the scheduler can still schedule a Pod onto a specific node.
+
+There are 2 types of affinity rules. Preferred rules and Required rules.
+
+1. Preferred rule: pod will be assigned on a non-matching node if and only if no other node in the cluster matches the specified 
+  labels. preferredDuringSchedulingIgnoredDuringExecution is a preferred rule affinity.
+  
+2. Required rules: if there are no matching nodes, then the pod won't be scheduled.
+a. requiredDuringSchedulingIgnoredDuringExecution affinity:
+  - pod will be scheduled only if the node labels specified in the pod spec matches with the labels on the node. However, 
+    once the pod is scheduled, labels are ignored meaning even if the node labels change, the pod will continue to run on that node.
+  
+b. requiredDuringSchedulingRequiredDuringExecution affinity:
+- pod will be scheduled only if the node labels specified in the pod spec matches with the labels on the node and if the labels
+  on the node change in future, the pod will be evicted. This effect is similar to NoExecute taint with one significant difference.
+  When NoExecute taint is applied on a node, every pod not having a toleration will be evicted, whereas, removing/changing a label 
+  will remove only the pods that do specify a different label.
+
+affinity:
+  nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+         nodeSelectorTerms:
+         - matchExpressions:
+           - key: "node"
+             operator: In
+             values: 
+           - workerone
+
+affinity:
+        nodeAffinity:
+         preferredDuringSchedulingIgnoredDuringExecution:
+         - weight: 1
+           preference:
+            matchExpressions:
+            - key: name
+              operator: In
+              values:
+              - workerone
+
+
+ kubectl apply -f node-affinity.yml
+ kubectl scale deployment javawebappdeployment --replicas 3
+ 
+Taints
+- Taint is a property of node that allows you to repel a set of pods unless those pods explicitly tolerates the said taint.
+- Taint has three parts. A key, a value and an effect.
+
+
+- NoSchedule - Doesn't schedule a pod without matching tolerations
+- PreferNoSchedule - Prefers that the pod without matching toleration be not scheduled on the node. It is a softer version of NoSchedule effect.
+- NoExecute - Evicts the pods that don't have matching tolerations.
+For example,
+kubectl taint nodes  <node> node=HatesPods:NoSchedule
+
+kubectl describe node ip-172-31-88-39
+kubectl get ds -n kube-system
+kubectl describe ds d
+kubectl describe node ip-172-31-83-235
+kubectl taint nodes ip-172-31-83-235 node=HatesPods:NoSchedule
+kubectl apply -f taint-tolerations.yml

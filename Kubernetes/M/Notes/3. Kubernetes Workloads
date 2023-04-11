@@ -1,0 +1,62 @@
+kubectl --version
+mkdir ~/.kube
+ls ./kube/          
+
+#Join workers 
+kubeadm token create --print-join-command
+kubectl get nodes
+
+CONTAINER NETWORKING INTERFACE (CNI):
+Overlay Networks:
+	
+Weave net:
+- kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+- kubectl get pods -n kube-system -o wide
+- kubectl get pods -n kube-system -o wide -n kube-system
+	
+Calico:
+Flannel:
+
+
+Namespaces: 
+- Virtual Cluster inside a kubernetes.
+- Can have multiple namespaces.
+- Isolated with each other. 
+- Helps to organize security/applications.
+
+a. Default-Namespace:
+-  is for deployments that are not given a namespace, which is a quick way to create a mess that will be hard to clean up if you do too many deployments without the proper information.
+        
+b. Kube-system: 
+-  is for all things relating to the Kubernetes system. Any deployments to this namespace are playing a dangerous game and can accidentally cause irreparable damage to the system itself.
+
+c.Kube-public:
+-   is readable by everyone, but the namespace is reserved for system usage.
+
+
+- kubectl get ns                      #List namespaces
+- kubectl get pods                    #List pods
+- kubectl get all                     #List all objects of kubernetes
+- kubectl get pods -n kube-system     #List pods running under namespace
+- kubectl get all -n kube-system      #List all objects listed under Namespace
+- kubectl create namespace test       #Create Namespace
+
+Kubernetes Resources/Objects/Workloads:
+- Persistent entities in the kubernetes system.
+- Objects are run as static pods.
+1.  PODS
+2.  Service
+3.  Replication Controller
+4.  ReplicaSet
+5.  daemonSet
+6.  Deployments
+7.  StatefulSet
+8.  PersistentVolumes
+9.  PersistentVolumesClaims
+10. Role
+11. CLusterRole
+12. RoleBinding
+13. ClusterRoleBinding
+
+- Iteractive:Through commnad
+- Declarative: Using manifest

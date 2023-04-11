@@ -1,0 +1,147 @@
+Agenda: Kubernetes Setup Using Kubeadm In AWS EC2 Ubuntu Servers
+=================================================================
+Creating a Cluster with Kubeadm
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network
+https://kubernetes.io/docs/concepts/cluster-administration/addons/
+https://projectcalico.docs.tigera.io/getting-started/kubernetes/hardway/standing-up-kubernetes#install-kubernetes
+
+Prerequisite:
+=============
+3 - Ubuntu Serves
+
+1 - Manager  (4GB RAM , 2 Core) t2.medium
+
+2 - Workers  (1 GB, 1 Core)     t2.micro
+
+Run Commands on Master and Worker Node:
+
+1. Install Docker:
+        apt install docker.io
+        usermod -aG docker ubuntu
+        systemctl enable docker.service
+        sudo service docker start
+        sudo docker run hello-world
+
+2. Turn Off Swap Space: 
+        swapoff -a
+        sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    
+3. Update the apt package index and install packages needed to use the Kubernetes apt repository:
+
+        sudo apt-get update
+        sudo apt-get install -y apt-transport-https ca-certificates curl
+    
+4. Download the Google Cloud public signing key:
+    
+        sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+5. Add the Kubernetes apt repository:
+    
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    
+6. Update apt package index, install kubelet, kubeadm and kubectl, and pin their version:
+    
+        sudo apt-get update
+        sudo apt-get install -y kubelet kubeadm kubectl
+        sudo apt-mark hold kubelet kubeadm kubectl
+    
+7. Install Container runtime(cri-dockered.git
+
+        git clone https://github.com/Mirantis/cri-dockerd.git
+        wget https://go.dev/dl/go1.19.4.linux-amd64.tar.gz
+        tar -C /usr/local -xzf go1.19.4.linux-amd64.tar.gz
+        echo 'export PATH=$PATH:/usr/local/go/bin' >>~/.profile
+        source ~/.profile
+        go version
+        cd cri-dockerd
+        go build -o bin/cri-dockerd
+        install -o root -g root -m 0755 bin/cri-dockerd /usr/local/bin/cri-dockerd
+        cp -a packaging/systemd/* /etc/systemd/system
+        sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
+        systemctl daemon-reload
+        systemctl enable --now cri-docker.socket
+   
+8. Switch as a root user and initialize kubead using cri-dockered
+ 
+        sudo kubeadm init --cri-socket=unix:///var/run/cri-dockerd.sock
+   
+9. Switch as a normal user and run below commands to setup kubectl
+    
+        mkdir -p $HOME/.kube
+        sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+        sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+        #list pods
+        kubectl get pods -A
+
+11. Install Weave Net which provides networking and network policy, will carry on working on both sides of a network partition,
+    and does not require an external database.
+
+        kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+        
+        #List pods and get events
+        kubectl get pods -A --watch
+        
+        #List nodes
+        kubectl get nodes
+        
+        #Get worker token
+        kubeadm token create --print-join-command
+        
+        #List nodes
+        kubectl get nodes
+
+
+12. Copy worker token from master node and run in worker node to join cluster. Along with token provide container runtime as mentioned below.
+
+        kubeadm join 172.31.88.39:6443 --token kz7b1m.5ocv20dg9yfhewa5 --discovery-token-ca-cert-hash sha256:f8f9b36d6d804f26397d65de1ce16d9a44b56ee49f1fb3e6473404addcea87d9 --cri-socket=unix:///var/run/cri-dockerd.sock
+   
+------------------------------------------------------------------------------------------------------------------------
+
+sudo su -
+apt-get update  
+apt-get install docker.io -y 
+swapoff -a
+sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - 
+echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" /etc/apt/sources.list.d/kubernetes.list
+apt-get update
+cat <<EOF | tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+
+apt-get update -y
+apt install -y kubeadm=1.20.0-00 kubectl=1.20.0-00 kubelet=1.20.0-00
+systemctl enable docker.service
+service docker start
+docker run hello-world
+ 
+===========================================================================================================================
+# Steps Only For Kubernetes Master
+
+sudo su -
+
+kubeadm init
+
+exit
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# To verify, if kubectl is working or not, run the following command.
+
+kubectl get pods -A
+
+#You will notice from the previous command, that all the pods are running except one: ‘core-dns’. For resolving this we will install a # pod network. To install the weave pod network, run the following command:
+
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+
+kubectl get nodes
+kubectl get pods 
+kubectl get pods --all-namespaces
+
+# Get token
+kubeadm token create --print-join-command

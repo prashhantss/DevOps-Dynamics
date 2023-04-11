@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wildcard-host-2
+spec:
+  ingressClassName: springapp-1
+  rules:
+  - host: "springapp.prashhantss.online"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: springappsvc
+            port:
+              number: 80
