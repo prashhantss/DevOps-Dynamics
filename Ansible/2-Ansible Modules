@@ -1,0 +1,70 @@
+ansible-dock -l			        #Lists all ansible modules/functionalities.
+ansible-doc <moduleName>		#Module Description
+
+ansible-doc -l | grep "copy"  - Copy files to remote locations
+
+yum: 
+- Manages packages with the `yum' package manager
+  
+service: 
+- Manage services
+ 
+file:
+- Manage files and file properties
+ 
+user: 
+- Manage user accounts 
+
+win_chocalatey: 
+- Manage packages using chocolatey
+ 
+group: 
+- Add or remove groups
+
+shell: 
+- Execute shell commands on targets, not idem potent
+	ansible all -m shell -a "date"
+	ansible all -m shell -a "df -kh"
+
+get_url: 
+- Downloads files from HTTP, HTTPS, or FTP to node.
+	ansible-dock get_url
+
+command: 
+- The `command module takes the command name followed by a list of space-delimited arguments. The given command will be executed on all selected nodes
+
+
+
+### Adhoc Commands:
+
+ansible <ALL/GROUPNAME/HOSTNAME> -m <MODULE> -a <ARGS>
+
+ansible all -m shell -a "git --version"
+ansible all -m shell -a "date"
+ansible all -m shell -a "df -kh"
+ansible all -m shell -a "uptime"
+ansible all -m shell -a "cat /etc/*release*"
+ansible all -m shell -b -a "yum install git -y"
+ansible all -m yum -a name=git state=present"
+ansible all -m apt -a name=git state=present"
+
+#Irrespective of underlying OS, which module we can use to manage packages using package managers in ansible?
+
+PACKAGE: 
+- Installs, upgrade and removes packages using the underlying OS package manager. 
+- For Windows targets, use the [win_package] module instead.
+
+ansible appServers -b -m yum -a "name=httpd state=present"	#install httpd 
+vi /etc/ansible/hosts
+#ansible appServers -b -m copy -a "src=index.html dest=/var/www/html/index.html remote_src: yes"
+vi index.html
+ansible appServers -b -m copy -a "src=index.html dest=/var/www/html/index.html #copy index.html
+ansible appServers -b -m service -a "name=httpd state=restarted"	#start httpd service
+	  
+ ansible-playbook installhttpd.yml --syntax-check
+ ansible-playbook installhttpd.yml --check		#Dry Run
+ 
+ - What is verbose run? how to run playbook in verbose run
+  ansible-playbook installhttpd.yml -v
+	ansible-playbook installhttpd.yml --step
+	ansible appServers -m setup
