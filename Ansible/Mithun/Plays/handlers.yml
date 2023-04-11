@@ -1,0 +1,34 @@
+#Handlers are special kind of tasks.
+#Handlers will not execute by default. 
+#Task has to notify handler to execute. 
+#Then handlers will execute at the end of the play(After executing all the tasks). 
+#The task which notified the handler should be changed then only handlers will execute.
+
+---
+- hosts: appServers
+  become: true
+  tasks:
+  - name: Install HTTPD
+    yum:
+      name: httpd
+      state: present
+  - name: Copy index.html
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+    notify:
+    - Service httpd start
+  - name: Debug message
+    debug:
+      msg: "After copy task"
+  handlers:
+  - name: Service httpd start
+    service:
+      name: httpd
+      state: started
+- hosts: dbServers
+  tasks: 
+  - name: install zip
+    yum:
+      name: zip
+      state: installed

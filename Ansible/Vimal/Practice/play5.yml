@@ -1,0 +1,22 @@
+- hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+  tasks:
+  - package:
+      name: "{{ package_name }}"
+      state: present
+  - file:
+      state: directory
+      path: "{{ doc_root }}"
+  - template:
+      dest: /etc/httpd/conf.d/example1.conf
+      src: "example1.conf"
+  - copy:
+      dest: /var/www/example1/index.html
+      content: "{{ site_content }}"
+  - service:
+      name: "{{ package_name }}"
+      state: restarted
+      enabled: yes
+

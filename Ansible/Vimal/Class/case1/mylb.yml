@@ -1,0 +1,24 @@
+- hosts: webserver
+  become: yes
+  tasks:
+  - name: "Install HTTPD"
+    package:
+      name: httpd
+  - copy:
+      dest: "/var/www/html/index.html"
+      content: "For LoadBalancer Testing"
+  - service:
+      name: "httpd"
+      state: restarted
+- hosts: loadbalancer
+  become: yes
+  tasks:
+  - name: install haproxy
+    package:
+      name: haproxy
+  - template:
+      dest: "/etc/haproxy/haproxy.cfg"
+      src: "haproxy.cfg"
+  - service:
+      name: "haproxy"
+      state: restarted

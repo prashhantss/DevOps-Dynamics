@@ -1,0 +1,19 @@
+# ansible localhost --list-hosts
+
+- hosts: localhost
+  become: yes
+  tasks:
+  - command: ls /tmp/prashant1
+    register: s
+    ignore_errors: yes
+
+  - command: mkdir /tmp/prashant1
+    register: x
+    when: s.rc != 0
+
+  - debug:
+      var: x
+
+  - debug:
+      msg: "end...."
+

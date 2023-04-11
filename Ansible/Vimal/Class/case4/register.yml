@@ -1,0 +1,19 @@
+- hosts: docker
+  become: yes
+  tasks:
+  - command: date
+    register: x
+  - service:
+      name: "httpd"
+      state: "started"
+    register: y
+  - debug:
+      msg: " Hi This Is Test "
+    when: x.rc == 0
+  - debug:
+      var: x.rc
+  - debug:
+      var: y
+  - debug:
+      msg: "Final Output"
+    when: x.rc == 0 and y.failed == false

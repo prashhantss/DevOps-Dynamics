@@ -1,0 +1,19 @@
+- hosts: all
+  become: yes
+  tasks:
+  - name: Ensure group "dev" exists
+    group:
+      name: "{{item}}"
+      state: present
+    with_items:
+    - dev
+    - admin
+
+  - name: Create Users
+    user:
+      name: "{{item.username}}"
+      create_home: "{{item.home}}"
+      group: "{{item.group}}"
+    with_items:
+    - {"username": "Prashant", "group": "dev", "home": "yes"}
+    - {"username": "Patil", "group": "admin", "home": "no"}

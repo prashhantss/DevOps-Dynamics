@@ -1,0 +1,10 @@
+- hosts: web
+  gather_facts: false
+  become: yes
+  tasks:
+  - name: Task1
+    command: sleep 20
+    async: 25
+    poll: 2
+  - name: Task2
+    command: sleep 5

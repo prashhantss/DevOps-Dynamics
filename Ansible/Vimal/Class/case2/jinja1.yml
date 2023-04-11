@@ -1,0 +1,17 @@
+- hosts: docker
+  become: yes
+  vars:
+  - x: ["P","R","A","S"]
+  tasks: 
+    - copy:
+        dest: "/root/zz.txt"
+        src: "my.txt"
+
+- hosts: docker
+  become: yes
+  vars:
+  - x: ["P","R","A","S"]
+  tasks:
+    - template:
+        dest: "/root/zzz.txt"
+        src: "jinja.txt"

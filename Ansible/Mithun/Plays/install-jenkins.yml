@@ -1,0 +1,44 @@
+- hosts: appServers
+  become: yes
+  tasks:
+  - name: Download long term Jenkins release...!
+    get_url:
+      url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+      dest: /etc/yum.repos.d/jenkins.repo
+  - name: Import jenkins key from URL...!
+    ansible.builtin.rpm_key:
+      state: present
+      key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+  - name: Install Java...!
+    yum:
+      name: java-11*
+      state: latest
+  - name: Install Epel Release which has daemonize dependencies which are required for Jenkins...!
+    yum:
+      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      state: present
+      disable_gpg_check: true
+  - name: Install Jenkins...!
+    yum:
+      name: jenkins
+      state: latest
+      skip_broken: yes
+  - name: Start Jenkins...!
+    service:
+      name: jenkins
+      state: started
+  - name: Enable Jenkins...!
+    systemd:
+     name: jenkins
+     enabled: true
+  - name: Sleep for 30 seconds and continue with play...!
+    wait_for:
+     delay: 30
+     port: 8080
+  - name: Init Jenkins password...!
+    shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+    changed_when: false
+    register: result
+  - name: Print Jenkins init password...!
+    debug:
+     var: result.stdout

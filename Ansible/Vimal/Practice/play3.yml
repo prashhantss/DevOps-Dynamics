@@ -1,0 +1,26 @@
+#Customize httpd default settings
+#Variables declared inside playbook
+
+
+- hosts: all
+  become: yes
+  vars:
+  - package_name: "httpd"
+  - doc_root: "/var/www/example"
+  tasks:
+  - package:
+      name: "{{ package_name }}"
+      state: present
+  - file:
+      state: directory
+      path: "{{ doc_root }}"
+  - copy:
+      dest: /etc/httpd/conf.d/example.conf
+      src: "example.conf"
+  - copy:
+      dest: '{{ doc_root }}/index.html'
+      content: "New Site"
+  - service:
+      name: "{{ package_name }}"
+      state: restarted
+      enabled: yes

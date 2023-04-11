@@ -1,0 +1,15 @@
+- hosts: all
+  become: yes
+  tasks:
+  - name: Ensure group "dev" exists
+    group:
+      name: dev
+      state: present
+  - name: Create Users
+    user:
+      name: "{{item}}"
+      create_home: yes
+      group: dev
+    with_items:
+    - Prashant
+    - Patil

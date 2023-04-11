@@ -1,0 +1,24 @@
+- hosts: WebServer
+  become: yes
+  tasks:
+  - block: 
+    - package:
+        name: "httpd"
+        state: "present"
+    - get_url: 
+        url: https//commons.wikimedia.org/wiki/File:Cat03.jpg 
+        dest: /var/www/html/prashant.jpg
+    - service:
+        name: "httpd"
+        state: started
+    - debug: 
+        msg: "this is test.."
+    rescue:
+    - copy:
+        dest: "/var/www/html/prashant.jpg"
+        content: "Hi Hello"
+    - debug:
+        msg: "Rescue Test"
+    always:
+    - debug:
+        msg: "Mail to XYZ"

@@ -1,0 +1,18 @@
+- hosts: all
+  become: true
+  vars:
+    test: XYZ 
+  tasks:
+  - name: Vars Demo
+    debug: 
+      msg: "Var test value: {{ test }}"
+  - name: Copy File
+    template:
+      src: test.txt
+      dest: /tmp/test.txt
+  - name: cat the file
+    shell: "cat /tmp/test.txt"
+    register: output
+  - name: Print File Content
+    debug:
+      msg: "File Content Is {{ output.stdout }}"

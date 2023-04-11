@@ -1,0 +1,14 @@
+- hosts: 127.0.0.1
+  become: yes
+  vars_files:
+  - mypass.yml
+  tasks:
+  - mail:
+      host: "{{ smtp_server }}"
+      port: "{{ smtp_port }}"
+      username: "{{ smtp_username }}"
+      password: "{{ smtp_password }}"
+      to: "{{ to_email }}"
+      subject: "{{ subject }}"
+      body: "{{ body }}"
+

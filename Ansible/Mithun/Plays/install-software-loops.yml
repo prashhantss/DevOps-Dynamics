@@ -1,0 +1,10 @@
+- hosts: all
+  tasks:
+  - name: Install Softwares
+    yum:
+      name: "{{item}}"
+      state: present
+    with_items:
+    - wget
+    - zip
+    - unzip

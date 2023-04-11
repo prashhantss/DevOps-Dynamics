@@ -1,0 +1,15 @@
+- hosts: WebServer
+  become: yes
+  vars:
+  - userdb:
+      - name: "P1"
+        phone: 1111
+      
+      - name: "P2"
+        phone: 2222
+
+      - name: "P3"
+        phone: 3333
+  tasks:
+  - debug:
+      var: userdb

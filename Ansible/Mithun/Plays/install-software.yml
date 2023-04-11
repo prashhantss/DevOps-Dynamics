@@ -1,0 +1,14 @@
+- hosts: all
+  tasks:
+  - name: Install wget
+    yum:
+      name: wget
+      state: present
+  - name: Install zip
+    yum:
+      name: zip
+      state: present
+  - name: Install unzip
+    yum:
+      name: unzip
+      state: present

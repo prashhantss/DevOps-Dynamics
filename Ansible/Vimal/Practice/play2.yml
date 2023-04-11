@@ -1,0 +1,42 @@
+- hosts: all
+  become: yes
+  tasks:
+  - file:
+      state: "directory"
+      path: "/dvd1"
+    tags: skip
+  - mount:
+      src: "/dev/cdrom"
+      path: "/dvd1"
+      state: mounted
+      fstype: "iso9660"
+    tags: skip
+  - yum_repository:
+      baseurl: "/dvd1/AppStream"
+      name: "mydvd1"
+      description: "myyum dvd1 for package"
+      gpgcheck: no
+    tags: skip
+  - yum_repository:
+      baseurl: "/dvd1/BaseOS"
+      name: "mydvd2"
+      description: "myyum dvd2 for package"
+      gpgcheck: no
+    tags: skip        
+  - package:
+      name: "httpd"
+      state: present
+  - copy:
+      dest: /var/www/html/index.html
+      content: "New Website2"
+  - service:
+      name: httpd
+      state: restarted
+      enabled: yes
+ 
+  - firewalld:
+      port: "80/tcp"
+      state: enabled
+      permanent: yes
+      immediate: yes
+    tags: skip

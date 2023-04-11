@@ -1,0 +1,12 @@
+- hosts: 127.0.0.1
+  become: yes
+  tasks:
+  - name: Send email
+    mail:
+      host: smtp.gmail.com
+      port: 587
+      username: username
+      password: password
+      to: prashhantss@gmail.com
+      subject: "Hi This Is Test"
+      body: "Hi This Is Test"

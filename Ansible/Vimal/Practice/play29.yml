@@ -1,0 +1,6 @@
+#cat /etc/passwd | wc -l
+
+- hosts: localhost
+  tasks:
+#  - command: cat /etc/passwd | wc -l
+  - shell: cat /etc/passwd | wc -l

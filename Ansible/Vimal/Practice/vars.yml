@@ -1,0 +1,4 @@
+package_name: "httpd"
+doc_root: "/var/www/example1"
+http_port: 8080
+site_content: "Hello Folks"

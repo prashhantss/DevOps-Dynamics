@@ -1,0 +1,17 @@
+- hosts: WebServer
+  become: yes
+  tasks:
+    - package:
+        name: "httpd"
+        state: present
+
+    - command: "date"
+      changed_when: false
+
+    - command: "ls /ans1"
+      register: x
+      ignore_errors: yes
+    - debug:
+        var: x
+    - command: "mkdir /ans1"
+      when: x.rc != 0

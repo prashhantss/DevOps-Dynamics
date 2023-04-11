@@ -1,0 +1,20 @@
+#Ignore Errors: Will ignore errors and continue with next task
+
+- hosts: all			#Try With gather_facts: no
+  become: true
+  gather_facts: yes
+  tasks:
+    - name: Check if java is installed
+      shell: java -version 2>&1 | grep version | awk '{print $3}' | sed 's/"//g'
+      register: java_version
+      ignore_errors: True
+    - name: Print Java Version
+      debug:
+        msg: "{{java_version}}"
+    - name: Install JAVA if not installed
+      yum:
+        name: java-11*
+        state: present
+      when:
+      -  ansible_facts['os_family'] == 'RedHat'
+      -  java_version.stdout == ""

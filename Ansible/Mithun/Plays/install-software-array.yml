@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+  - name: Install Softwares
+    yum:
+      name: ['wget','zip','unzip']
+      state: present

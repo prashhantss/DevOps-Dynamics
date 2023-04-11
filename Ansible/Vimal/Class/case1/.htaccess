@@ -1,0 +1,6 @@
+AuthName "Secure Website"
+
+AuthType basic
+
+AuthUserFile "/etc/www.passwd"
+Require valid-user

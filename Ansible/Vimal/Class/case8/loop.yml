@@ -1,0 +1,23 @@
+- hosts: webserver
+  become: yes
+  vars:
+  - x:
+      - "httpd"
+      - "php"
+  tasks:
+  - package:
+      name: "{{item}}"
+      state: present
+    loop: "{{ x }}"
+  - debug:
+      var: x
+      var: x[0]  
+
+  - group:
+      name: docker
+      state: present
+  - user:
+      name: p1
+      password: redhat
+      state: present
+      groups: "docker"  

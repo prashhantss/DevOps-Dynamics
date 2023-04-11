@@ -1,0 +1,21 @@
+- hosts: docker
+  become: yes
+  vars:
+  - os_name: "{{ ansible_facts['distribution'] }}"
+  - x: prashant
+  tasks:
+  - package:
+      name: "httpd"
+    when: os_name == "RedHat"
+  
+  - package:
+      name: "apache2"
+    when: os_name == "Debian"
+    
+  - package:
+      name: "httpd"
+    when: os_name == "Amazon"
+  
+  - debug:
+      var: os_name
+

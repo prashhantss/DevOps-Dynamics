@@ -1,0 +1,28 @@
+This is {{ x }}
+
+
+
+
+
+{% for j in x %}
+
+this is {{ j }}
+
+{% endfor %}
+
+
+
+
+
+this is {{ groups }}
+
+
+
+
+
+
+{% for i in groups['docker'] %}
+
+This is docker ip {{ groups['docker'] }}
+
+{% endfor %}

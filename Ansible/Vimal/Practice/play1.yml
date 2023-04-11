@@ -1,0 +1,15 @@
+#Install httpd
+
+- hosts: all
+  become: yes
+  tasks:
+  - package:
+      name: "httpd"
+      state: present
+  - copy:
+      dest: /var/www/html/index.html
+      content: "New Website"
+  - service:
+      name: httpd
+      state: restarted
+      enabled: yes

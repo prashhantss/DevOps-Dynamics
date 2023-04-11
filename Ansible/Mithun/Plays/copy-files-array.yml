@@ -1,0 +1,12 @@
+- hosts: all
+  become: yes
+  tasks:
+  - name: Copy Files
+    copy:
+      src: "{{item.src}}"
+      dest: "{{item.dest}}"
+      mode: "{{item.mode}}"
+      owner: "{{item.owner}}"
+    with_items:		#with_items OR loop
+    - {"src": "/home/ansible/Ansible/ansible-playbooks/test.txt", "dest": "/tmp/test.txt", "mode": "0655", "owner": "ansible"}
+    - {"src": "/home/ansible/Ansible/ansible-playbooks/test1.txt", "dest": "/opt/test1.txt", "mode": "0777", "owner": "ansible"}

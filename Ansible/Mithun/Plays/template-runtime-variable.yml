@@ -1,0 +1,31 @@
+#Runtime Variable and Handlers
+#Template is used to make use of variables
+
+---
+- hosts: appServers
+  become: true
+  tasks:
+  - name: Install HTTPD
+    yum:
+      name: httpd
+      state: present
+  - name: Copy index.html
+    template:
+      src: index.html
+      dest: /var/www/html/index.html
+    notify:
+    - Service httpd start
+  - name: Debug message
+    debug:
+      msg: "After copy task"
+  handlers:
+  - name: Service httpd start
+    service:
+      name: httpd
+      state: started
+- hosts: dbServers
+  tasks: 
+  - name: install zip
+    yum:
+      name: zip
+      state: installed

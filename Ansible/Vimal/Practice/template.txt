@@ -1,0 +1,16 @@
+This is {{ x }}
+--------------------------------
+{% for j in x %}
+
+this is {{ j }}
+
+{% endfor %}
+------------------------------------
+this is {{ groups }}
+-----------------------------------
+{% for i in groups['WebServer'] %}
+
+This is WebServer ip {{ groups['WebServer'] }}
+
+{% endfor %}
+--------------------------------------------

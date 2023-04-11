@@ -1,0 +1,39 @@
+---
+- hosts: appServers
+  become: true
+  gather_facts: no
+  vars:
+    package_name: httpd
+    name: Prashant
+  tasks:
+  - name: Install Tag
+    yum:
+      name: "{{package_name}}"
+      state: present
+    tags:
+    - install
+  - name: Copy Tag
+    template:
+      src: index.html
+      dest: /var/www/html/index.html
+    notify:
+    - Service httpd start
+    tags:
+    - copy
+  - name: Debug Tag
+    debug:
+      msg: "After copy task name variable value: {{name}}"
+    tags:
+    - debug
+    - install
+  handlers:
+  - name: Service httpd start
+    service:
+      name: "{{package_name}}"
+      state: started
+- hosts: dbServers
+  tasks: 
+  - name: install zip
+    yum:
+      name: zip
+      state: installed

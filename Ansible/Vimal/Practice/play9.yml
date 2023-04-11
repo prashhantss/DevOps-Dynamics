@@ -1,0 +1,20 @@
+- hosts: WebServer
+  become: yes
+  vars:
+  - x: ["P","R","A","S"]
+  tasks: 
+  - copy:
+      dest: "/root/copy_example.txt"
+      src: "example.txt"
+
+- hosts: WebServer
+  become: yes
+  vars:
+  - x: ["P","R","A","S"]
+  tasks:
+  - template:
+      dest: "/root/template_example.txt"
+      src: "template.txt"
+  - template:
+      dest: "/root/template2_example.txt"
+      src: "template2.txt"

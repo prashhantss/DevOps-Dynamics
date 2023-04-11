@@ -1,0 +1,20 @@
+{{ groups }}
+--------------------------
+{{ groups['WebServer'] }}
+------------------------------
+{% for host in groups['WebServer'] %}
+
+This is WebServer ip {{ host }}
+
+{% endfor %}
+---------------------------------------
+{% for host in groups['all'] %}
+  {{ host }}
+{% endfor %}
+--------------------------------------
+Below Block is for haproxy
+
+{% for host in groups['all'] %}
+server	app{{ loop.index }}	{{ host }}:80	check
+{% endfor %}
+-------------------------------------------

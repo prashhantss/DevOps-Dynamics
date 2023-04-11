@@ -1,0 +1,14 @@
+- hosts: localhost
+  become: yes
+  tasks:
+  - name: Start
+    debug:
+      msg: "Start"
+  - name: Block  
+    block:
+    - command: date1
+    rescue:
+    - command: date
+    always:
+    - debug:
+        msg: "Test End..."

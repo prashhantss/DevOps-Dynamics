@@ -1,0 +1,19 @@
+- hosts: main
+  gather_facts: false
+  become: yes
+  serial:
+    - 1
+    - 2
+    - 1
+  tasks:
+  - name: Task1
+    command: sleep 20
+    async: 55  
+    poll: 0
+    register: result
+  - name: Task2
+    command: sleep 3
+  - name: Task3
+    command: sleep 5
+  - debug:
+      var: result

@@ -1,0 +1,24 @@
+- hosts: webserver
+  become: yes
+  tasks:
+  - block: 
+    - package:
+        name: "httpd"
+        state: "present"
+    - get_url: 
+        url: https://githu.com/prashhantss/prashhantss/blob/master/3ddcf6ebde8148e4be1bd8069026c4fd_318622885_5928715230505902_5039657765940278804_n.webp
+        dest: /var/www/html/prashant.jpg
+    - service:
+        name: "httpd"
+        state: started
+    - debug: 
+        msg: "this is test.."
+    rescue:
+    - copy:
+        dest: "/var/www/html/prashant.jpg"
+        content: "Hi Hello"
+    - debug:
+        msg: "Rescue Test"
+    always:
+    - debug:
+        msg: "Mail to XYZ"

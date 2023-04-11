@@ -1,0 +1,23 @@
+- hosts: 172.31.40.162
+  become: yes
+  vars_prompt:
+    - name: content
+      private: no
+      prompt: Enter File Content
+  tasks:
+  - package:
+      name: "httpd"
+      state: present
+  - file:
+      state: directory
+      path: "/var/www/lw"
+  - copy:
+      dest: /etc/httpd/conf.d/lw.conf
+      src: "lw.conf"
+  - copy:
+      dest: /var/www/lw/index.html
+      content: "{{ content }}"
+  - service:
+      name: httpd
+      state: restarted
+      enabled: yes

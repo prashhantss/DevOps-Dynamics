@@ -1,0 +1,23 @@
+---
+- hosts: appServers
+  become: yes
+  tasks:
+  - name: Install HTTPD
+    yum:
+      name: httpd
+      state: present
+  - name: Copy index.html
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+  - name: Service httpd restart
+    service:
+      name: httpd
+      state: started
+- hosts: dbServers
+  tasks:
+  - name: install zip
+    yum:
+      name: zip
+      state: installed
+...

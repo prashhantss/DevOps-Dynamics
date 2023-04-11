@@ -1,0 +1,28 @@
+#Configure web server and setup reverse haproxy
+
+
+- hosts: WebServer
+  become: yes
+  tasks:
+  - name: "Install HTTPD"
+    package:
+      name: httpd
+  - copy:
+      dest: "/var/www/html/index.html"
+      content: "For LoadBalancer Testing"
+  - service:
+      name: "httpd"
+      state: restarted
+
+- hosts: LoadBalancer
+  become: yes
+  tasks:
+  - package:
+      name: "haproxy"
+      state: present
+  - template:
+      dest: "/etc/haproxy/haproxy.cfg"
+      src: "haproxy.cfg"
+  - service:
+      name: "haproxy"
+      state: restarted

@@ -1,0 +1,50 @@
+- hosts: all
+  become: yes
+  vars:
+  - package_name: "httpd"
+  - doc_root: "/var/www/example"
+  - site_content: "Hello"
+  tasks:
+  - package:
+      name: "{{ package_name }}"
+      state: present
+  - file:
+      state: directory
+      path: "{{ doc_root }}"
+  - copy:
+      dest: /etc/httpd/conf.d/lw.conf
+      src: "lw.conf"
+  - copy:
+      dest: /var/www/lw/index.html
+      content: "{{ site_content }}"
+  - service:
+      name: "{{ package_name }}"
+      state: restarted
+      enabled: yes
+
+
+
+#Variables declared inside playbook
+
+- hosts: all
+  become: yes
+  vars:
+    - package_name: "httpd"
+    - doc_root: "/var/www/example"
+    - site_content: "Hello"
+  tasks:
+  - package:
+      name: "{{ package_name }}"
+      state: present
+  - file:
+      state: directory
+      path: "{{ doc_root }}"
+  - copy:
+      dest: /etc/httpd/conf.d/example.conf
+      src: "example.conf"
+  - copy:
+      dest: {{ doc_root}}/index.html
+      content: "{{ site_content }}"
+  - service:
+      name: httpd
+      state: restarted

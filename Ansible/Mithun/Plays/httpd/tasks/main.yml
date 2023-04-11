@@ -1,0 +1,22 @@
+---
+# tasks file for httpd
+- name: Install HTTPD
+  yum:
+    name: "{{package_name}}"
+    state: present
+  tags:
+  - install
+- name: Copy index.html
+  template:
+    src: index.html
+    dest: /var/www/html/index.html
+  notify:
+  - Start httpd service
+  tags:
+  - copy
+- name: Debug message
+  debug:
+    msg: "After copy task name variable value: {{name}}"
+  tags:
+  - debug
+  - install

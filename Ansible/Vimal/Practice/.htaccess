@@ -1,0 +1,5 @@
+AuthName "Restricted Content"
+AuthType Basic
+
+AuthUserFile "/etc/www.htpasswd"
+Require valid-user

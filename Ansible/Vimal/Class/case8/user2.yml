@@ -1,0 +1,27 @@
+- hosts: WebServer
+  become: yes
+  vars:
+  - userdb:
+      - name: "P1"
+        phone: 1111
+        p: "Ansible"
+        g: "docker"
+      
+      - name: "P2"
+        phone: 2222
+        p: "Ansible"
+        g: "docker"
+          
+      - name: "P3"
+        phone: 3333
+        p: "Ansible"
+        g: "docker"
+  tasks:
+  - debug:
+      var: userdb[2].p
+  - user: 
+      name: "{{ item.name }}"
+      password: "{{ item.p | password_hash('sha512') }}"
+      state: present
+      groups: "{{ item.g }}"
+    loop: "{{ userdb }}"

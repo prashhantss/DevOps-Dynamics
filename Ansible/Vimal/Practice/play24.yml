@@ -1,0 +1,8 @@
+#Parallelism
+#fork=1
+
+- hosts: main
+  gather_facts: false
+  become: yes
+  tasks:
+  - command: sleep 30

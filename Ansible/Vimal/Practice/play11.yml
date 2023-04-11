@@ -1,0 +1,17 @@
+#Launch EC2 Instance
+
+- hosts: localhost
+  become: yes
+  tasks:
+  - name: start an instance with a public IP address
+    ec2_instance:
+      region: ap-south-1
+      image_id: ami-06e6b44dd2af20ed0
+      instance_type: t2.micro
+      vpc_subnet_id: subnet-0a0e69337a9852426
+      security_group: launch-wizard-2
+      key_name: "ans"
+      name: "public-compute-instance"
+      state: absent
+      aws_access_key: AKIAXDWJJ3Y37WCYFUVE
+      aws_secret_key: 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

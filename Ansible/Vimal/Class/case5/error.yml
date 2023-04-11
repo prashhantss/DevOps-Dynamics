@@ -1,0 +1,30 @@
+- hosts: WebServer
+  become: yes
+  vars:
+    - os_name: ansible_facts['distribution']
+  tasks:
+  
+  - command: "date1234"
+    ignore_errors: yes
+
+  - package:
+      name: "httpd"
+      state: present
+    when: os_name == "Amazon"
+  - copy:
+      dest: "/var/www/html/index.html"
+      content: "Hi There"
+  - template:
+      dest: /etc/httpd/conf.d/lw.conf
+      src: "lw.conf"
+    notify: Web Services
+  handlers:
+  - name: Web Services
+    service:
+      name: "httpd"
+      state: "started"
+  - debug:
+      msg: "Test"
+  - service:
+      name: "haproxy"
+

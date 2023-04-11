@@ -1,0 +1,25 @@
+#Intractive Inputs
+
+- hosts: all
+  become: yes
+  vars_prompt:
+    - name: content
+      private: no
+      prompt: Enter File Content
+  tasks:
+  - package:
+      name: "httpd"
+      state: present
+  - file:
+      state: directory
+      path: "/var/www/example"
+  - copy:
+      dest: /etc/httpd/conf.d/example.conf
+      src: "example.conf"
+  - copy:
+      dest: /var/www/example/index.html
+      content: "{{ content }}"
+  - service:
+      name: httpd
+      state: restarted
+      enabled: yes
