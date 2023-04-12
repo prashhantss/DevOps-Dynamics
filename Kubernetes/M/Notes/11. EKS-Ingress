@@ -74,40 +74,6 @@ kubectl get pods -n kube-system
 
 
 
-Setup EKS using eksctl:
-
-1)Setup eksctl:
-- curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-- sudo mv /tmp/eksctl /usr/local/bin
-- eksctl version
-
-2) Setup EKS Cluster
-- eks-cluster.yml
-- eksctl create cluster -f eks-cluster.yml
-3)Update kubeconfig
-- aws eks update-kubeconfig --name basic-cluster --region ap-south-1
-- kubectl config view
-- eksctl upgrade nodegroup --cluster basic-cluster --name ng-1 -f eks-cluster.yml
-
-
-eksctl delete nodegroup --cluster basic-cluster1 --name=ng-1 --disable-eviction
-eksctl delete nodegroup --cluster=<clusterName> --name=<nodegroupName> --disable-eviction
-kubectl cluster-info
-kubectl create deployment myweb --image=vimal13/apache-webserver-php
-kubectl get pods -o wide
-kubectl scale deployment myweb --replicas=3
-kubectl expose deployment myweb --type=LoadBalancer --port=80
-kubectl get pvc
-kubectl get pv
-kubectl get sc
-pvc.yml
-kubectl create -f pvc.yml
-
-
-
-
-
-
 
 Launch Deployment using EKS
 vi javawebapp.yml
