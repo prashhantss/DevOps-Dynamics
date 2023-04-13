@@ -45,3 +45,5 @@ Once pvc is created by default sc will wait for pod to claim pvc once it is clai
         volumeMounts:
         - mountPath: /var/www/html
           name: web-vol1
+
+
