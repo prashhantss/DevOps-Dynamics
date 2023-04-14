@@ -1,5 +1,7 @@
+// IAM role for EKS-Cluster
+
 resource "aws_iam_role" "master" {
-  name = "ed-eks-master"
+  name = "eks-master-role"
 
   assume_role_policy = <<POLICY
 {
@@ -32,8 +34,11 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSVPCResourceController" {
   role       = aws_iam_role.master.name
 }
 
+
+// IAM role for EKS-Cluster
+
 resource "aws_iam_role" "worker" {
-  name = "ed-eks-worker"
+  name = "eks-worker-role"
 
   assume_role_policy = <<POLICY
 {
@@ -118,7 +123,7 @@ resource "aws_iam_instance_profile" "worker" {
 
 ###############################################################################################################
 resource "aws_eks_cluster" "eks" {
-  name = "ed-eks-01"
+  name = "eks-01"
   role_arn = aws_iam_role.master.arn
 
   vpc_config {
@@ -130,8 +135,6 @@ resource "aws_eks_cluster" "eks" {
     aws_iam_role_policy_attachment.AmazonEKSServicePolicy,
     aws_iam_role_policy_attachment.AmazonEKSVPCResourceController,
     aws_iam_role_policy_attachment.AmazonEKSVPCResourceController,
-    #aws_subnet.pub_sub1,
-    #aws_subnet.pub_sub2,
   ]
 
 }
@@ -139,18 +142,18 @@ resource "aws_eks_cluster" "eks" {
 
 resource "aws_eks_node_group" "backend" {
   cluster_name    = aws_eks_cluster.eks.name
-  node_group_name = "dev"
+  node_group_name = "prod"
   node_role_arn   = aws_iam_role.worker.arn
   subnet_ids = [var.subnet_ids[0],var.subnet_ids[1]]
   capacity_type = "ON_DEMAND"
   disk_size = "20"
   instance_types = ["t2.micro"]
   remote_access {
-    ec2_ssh_key = "ans"
+    ec2_ssh_key = var.key
     source_security_group_ids = [var.sg_ids]
   } 
   
-  labels =  tomap({env = "dev"})
+  labels =  tomap({env = "prod"})
   
   scaling_config {
     desired_size = 2

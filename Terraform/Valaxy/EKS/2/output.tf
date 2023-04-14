@@ -1,9 +1,9 @@
-output "public_ip_of_demo_server" {
-    description = "this is the public IP"
-    value = aws_instance.demo-server.public_ip
+output "public_ip_of_eks-client" {
+    description = "Public IP Of eks-client"
+    value = aws_instance.eks-client.public_ip
 }
 
-output "private_ip_of_demo_server" {
-    description = "this is the public IP"
-    value = aws_instance.demo-server.private_ip
+output "private_ip_of_eks-client" {
+    description = "Private IP Of eks-client"
+    value = aws_instance.eks-client.private_ip
 }
