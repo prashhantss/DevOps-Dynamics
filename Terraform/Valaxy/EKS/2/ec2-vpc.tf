@@ -102,7 +102,7 @@ resource "aws_security_group" "demo-vpc-sg" {
 
 module "sgs" {
   source = "./sg-eks"
-  cpc_id = aws_vpc.demo-vpc.id
+  vpc_id = aws_vpc.demo-vpc.id
 }
 
 module "eks" {
