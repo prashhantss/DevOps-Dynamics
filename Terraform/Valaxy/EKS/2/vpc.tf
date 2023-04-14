@@ -7,7 +7,7 @@ resource "aws_vpc" "eks-vpc" {
 resource "aws_subnet" "eks-subnet-1" {
   vpc_id     = aws_vpc.eks-vpc.id 
   cidr_block = var.subnet1-cidr
-  availability_zone = var.subent_az-2
+  availability_zone = var.subent_az-1
   tags = {
     Name = "eks-subnet-1"
   }
