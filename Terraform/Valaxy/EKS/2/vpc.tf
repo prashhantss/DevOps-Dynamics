@@ -47,10 +47,15 @@ resource "aws_route_table" "eks-rt" {
 
 // Subnet Association with Route Table 
 resource "aws_route_table_association" "eks-rt_association-1" {
-  subnet_id      = [ aws_subnet.eks-subnet-1.id, aws_subnet.eks-subnet-2.id ]
+  subnet_id      = aws_subnet.eks-subnet-1.id 
   route_table_id = aws_route_table.eks-rt.id
 }
 
+// Subnet-2 Association with Route Table
+resource "aws_route_table_association" "eks-rt_association-2" {
+  subnet_id      = aws_subnet.eks-subnet-2.id 
+  route_table_id = aws_route_table.eks-rt.id
+}
 
 // Security group for eks-client
 resource "aws_security_group" "ec2-vpc-sg" {
