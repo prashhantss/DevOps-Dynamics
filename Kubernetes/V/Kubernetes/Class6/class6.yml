@@ -1,0 +1,17 @@
+
+kubectl run mydb --image=mysql:5:7 --env=MYSQL_ROOT_PASSWORD=redhat --env=MYSQL_DATABASE=redhat --env=MYSQL_USER=redhat --env=MYSQL_PASSWORD=redhat
+
+kubectl logs mydb
+kubectl run myos1 --image=vimal13/apache-web-server-php
+kubectl exec -it myos1 bash
+ipconfig
+vi /root/.bashrc
+kubectl delete
+
+
+
+kubectl run mydb --image=mysql:5:7 --env=MYSQL_ROOT_PASSWORD=redhat --env=MYSQL_DATABASE=redhat --env=MYSQL_USER=redhat --env=MYSQL_PASSWORD=redhat
+
+kubectl exec -it mydb -- bash
+mysql -u redhat -p redhat
+kubectl run mywp --image=wordpress:cli-5.1.1-php7.3-apache
