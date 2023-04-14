@@ -5,6 +5,7 @@ resource "aws_security_group" "worker-node-sg" {
   description = "Allow ssh inbound traffic"
   vpc_id      =  var.vpc_id
 
+
   ingress {
     description      = "ssh access to public"
     from_port        = 22
