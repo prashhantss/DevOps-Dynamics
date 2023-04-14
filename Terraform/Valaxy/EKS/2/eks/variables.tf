@@ -13,3 +13,7 @@ variable "vpc_id" {
 variable "key" {
     default = "ans"
 }
+
+variable "worker-instance-type" {
+  default = "t2.micro"
+}
