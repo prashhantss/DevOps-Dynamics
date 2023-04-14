@@ -26,6 +26,10 @@ variable "subnet2-cidr" {
     default = "10.10.2.0/24"
   
 }
-variable "subent_az" {
+variable "subent_az-1" {
     default =  "ap-south-1a"  
+}
+
+variable "subent_az-2" {
+    default =  "ap-south-1b"  
 }
