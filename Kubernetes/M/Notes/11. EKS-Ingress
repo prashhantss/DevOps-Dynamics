@@ -50,7 +50,7 @@ aws configure
 
 4) Get KubeConfig file
 ls ~/.
-aws eks update-kubeconfig --name EKS --region ap-south-1
+aws eks update-kubeconfig --name eks-01 --region ap-south-1
 cat /root/.kube/config
 kubectl get nodes
 kubectl get pods
