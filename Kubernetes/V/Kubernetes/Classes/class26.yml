@@ -1,0 +1,301 @@
+Adapter, Ambassador, Sidecar
+
+SideCar: Communication using shared volumes/storage
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mc1
+spec:
+  volumes:
+  - name: html
+    emptyDir: {}
+  containers:
+  - name: 1st
+    image: nginx
+    volumeMounts:
+    - name: html
+      mountPath: /usr/share/nginx/html
+  - name: 2nd
+    image: debian
+    volumeMounts:
+    - name: html
+      mountPath: /html
+    command: ["/bin/sh", "-c"]
+    args:
+      - while true; do
+          date >> /html/index.html;
+          sleep 1;
+        done
+
+kubectl apply -f sidecar.yml
+
+kubectl exec -it mc1 --bash
+
+kubectl exec -it mc1 -c 1st --bash
+
+cat /usr/share/nginx/html/index.html
+
+kubectl exec -it mc1 -c 2nd --bash
+
+cat /usr/share/nginx/html/index.html
+
+
+
+
+Producer >>>> SharedMemory/RAM[InterProcess Communication] <<<< Consumer | Sidecar
+
+Multi IPC
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mc2
+spec:
+  containers:
+  - name: 1st
+    image: allingeek/ch6_ipc
+    command: ["./ipc", "-producer"]
+  - name: 2nd
+    image: allingeek/ch6_ipc
+    command: ["./ipc", "-consumer"]
+  restartPolicy: Never
+
+kubeectl apply -f multi-ipc.yml
+
+kubectl describe mc2
+
+kubectl logs mc2 -c 1st
+
+kubectl logs mc2 -c 2nd
+
+
+Multi-Network Pods
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mc3-nginx-conf
+data:
+  nginx.conf: |-
+    user  nginx;
+    worker_processes  1;
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile        on;
+        keepalive_timeout  65;
+
+        upstream webapp {
+            server 127.0.0.1:5000;
+        }
+
+        server {
+            listen 80;
+
+            location / {
+                proxy_pass         http://webapp;
+                proxy_redirect     off;
+            }
+        }
+    }
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mc3
+  labels:
+    app: mc3
+spec:
+  containers:
+  - name: webapp
+    image: training/webapp
+  - name: nginx
+    image: nginx:alpine
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: nginx-proxy-config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+  volumes:
+  - name: nginx-proxy-config
+    configMap:
+      name: mc3-nginx-conf
+
+
+kubectl apply -f multinetwork.yml
+
+kubectl get pods
+kubectl expose pod mc3 --type=NodePort port=80
+
+kubectl get svc
+
+
+Multi Sidecar
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-pod
+spec:
+  volumes:
+  - name: logs 
+    emptyDir: {}
+  containers:
+  - name: app-container
+    image: alpine
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do date >> /var/log/app.log; sleep 2;done"]
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log
+  - name: log-exporter-sidecar
+    image: nginx
+    ports:
+      - containerPort: 80
+    volumeMounts:
+    - name: logs
+      mountPath: /usr/share/nginx/html
+
+kubectl apply 
+kubectl get pods
+kubectl expose pod mc3 --type=NodePort port=80
+
+
+Multi-Adapter:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adapter-pod
+  labels:
+    app: adapter-app
+spec:
+  volumes:
+  - name: logs
+    emptyDir: {}
+  containers:
+  - name: app-container
+    image: alpine
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do date >> /var/log/app.log; sleep 2;done"]
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log
+  - name: log-adapter
+    image: alpine
+    command: ["/bin/sh"]
+    args: ["-c", "tail -f /var/log/app.log|sed -e 's/^/Date /' > /var/log/out.log"]
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log
+
+
+kubectl apply
+kubectl exec -it adapter-pod -c app-container --sh
+cat /var/log/app.log
+kubectl exec -t adapter-pod -c log-adapter --sh
+cat /var/log/out.log
+
+
+Multi-Ambassador:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ambassador-pod
+  labels:
+    app: ambassador-app
+spec:
+  volumes:
+  - name: shared
+    emptyDir: {}
+  containers:
+  - name: app-container-poller
+    image: yauritux/busybox-curl
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do curl 127.0.0.1:81 > /usr/share/nginx/html/index.html; sleep 10; done"]
+    volumeMounts:
+    - name: shared
+      mountPath: /usr/share/nginx/html
+  - name: app-container-server
+    image: nginx
+    ports:
+      - containerPort: 80
+    volumeMounts:
+    - name: shared
+      mountPath: /usr/share/nginx/html
+  - name: ambassador-container
+    image: bharamicrosystems/nginx-forward-proxy
+    ports:
+      - containerPort: 81
+
+
+InitContainer:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+  - name: init-mydb
+    image: busybox:1.28
+    command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+
+
+kubectl apply
+kubectl describe pods myapp-pod
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myservice
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9376
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mydb
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9377
+
+kubectl apply
+kubectl get pods
+kubectl describe pods myapp-pod

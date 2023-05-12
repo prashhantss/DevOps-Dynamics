@@ -1,0 +1,61 @@
+kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem --node-name=master
+
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -g) $HOME/.kube/config
+
+
+kubectl apply -f
+https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+kubeadm token -create --print-join-command
+
+All Nodes:
+kubeadm joinParameters --node-name=node1
+
+Staic Pod: /etc/kubernetes/manifests
+kubect describe pods kube-scheduler-master -n kube-system
+
+Node1
+ps -aux | grep kubelet
+vi /var/lib/kubelet/config.yml
+cat /var/lib/kubelet/config.yml | grep static
+Keep pod file in above folder and only pod can be created from node.
+
+
+vi kube-scheduler.yml
+    --leader-elect=true
+Change Scheduler name
+
+For failover we can create multi-schedulers.
+vi my-scheduler.yml
+    --leader-elect=true     #False work with multi-master setup
+Create new pod
+kubectl run p1 --image=httpd
+kubectl describe pods p1
+Remove default scheduler
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: p2
+spec:
+  schedulerName: my-scheduler
+  containers:
+  - name: my-container
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+
+kubectl describe pods p2
+
+If cluster have multiple schedulers
+
+Setup 
+
+
+DaemonSet:
+Make sure each node will have a pod
+Example: Monitoring Pods, Networking Pods, Kube-Proxy, 
+

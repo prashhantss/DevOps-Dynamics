@@ -1,0 +1,88 @@
+Scheduling:
+
+Selector Taints:
+
+kubectl describe nodes NodeName
+  Taints: node-role.kubernetes.io/master:NoSchedule
+
+kubectl describe node NodeName | grep Taint
+
+kubectl explain pod #help command
+kubectl explain pod --recursive
+
+kubectl run mypod --image="vimal13/apche-webserver-php --dry-run
+kubectl run mypod --image="vimal13/apche-webserver-php --dry-run=client -o yaml
+kubectl get pods -o wide
+kubectl get pods -n kube-system -o wide
+kubectl label node node1 region=US storage=bigdata
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: mypod
+  name: mypod
+spec:
+  nodeSelector:
+    region: US
+  containers:
+  - image: vimal13/apche-webserver-php
+    name: mypod
+
+kubectl apply -f mypod.yml
+
+kubectl get pods -o wide --show-labels
+kubectl taint node node2 mytype=vryimp=NoSchedule
+kubectl describe node node2 | grep taints
+kubectl label node node2 region=IN
+kubectl describe node node2 | grep taints
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: mypod1
+  name: mypod1
+spec:
+  nodeSelector:
+    region: IN
+  containers:
+  - image: vimal13/apche-webserver-php
+    name: mypod1
+
+kubectl apply -f mypod1.yml
+kubectl get pods    #pod will be in pending state because node s tainted
+kubectl describe pods mypod1
+
+Taint Tolerations:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: myapp1
+  name: myapp1
+spec:
+  nodeSelector:
+    region: IN
+  containers:
+  - image: vimal13/apche-webserver-php
+    name: myapp1
+
+kubectl apply -f myapp1.yml
+kubectl edit pods myapp1
+tolerations:
+- effect: NoSchedule
+  key: mytype
+  value: vryimp
+  operator: equal
+
+kubectl describe node master | grep taints
+kubectl taint node master node-role.kubernetes.io/master:NoSchedule-
+kubectl describe node master | grep taints
+kubect taint node node1
+
+NoSchedule: Older pods will run as it is new pods will not be scheduled
+NoExecute: Older pods will be deleted and newd pods will not be scheduled, During Maintainence
+

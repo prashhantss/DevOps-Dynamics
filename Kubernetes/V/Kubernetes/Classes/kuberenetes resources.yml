@@ -1,0 +1,23 @@
+Pods: The smallest deployable unit in Kubernetes, a Pod is a logical host for one or more containers.
+
+ReplicaSets: A ReplicaSet ensures that a specified number of replicas of a Pod are running at any given time.
+
+Deployments: A Deployment manages the lifecycle of a ReplicaSet, allowing for easy rolling updates and rollbacks.
+
+Services: A Service provides a stable IP address and DNS name for a set of Pods, allowing other services and applications to easily access them.
+
+ConfigMaps: A ConfigMap stores configuration data as key-value pairs that can be consumed by containerized applications.
+
+Secrets: A Secret stores sensitive data, such as passwords or keys, that can be used by containerized applications.
+
+Volumes: A Volume provides a way for containers to access persistent storage that can survive container restarts.
+
+StatefulSets: A StatefulSet manages the deployment of stateful applications, such as databases, that require stable network identities and persistent storage.
+
+Jobs: A Job runs a containerized workload to completion, and then terminates.
+
+CronJobs: A CronJob runs a containerized workload on a scheduled basis, similar to a UNIX cron job.
+
+Volume Claim Template:
+
+Headless Services:

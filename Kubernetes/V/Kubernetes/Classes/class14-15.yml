@@ -1,0 +1,42 @@
+Namespace: Logical cluster or virtual cluster inside a cluster.
+
+kubectl get namespace
+
+Kube-System: For kubernetes own resources
+
+kubectl create namespace example
+kubectl get pods -n example
+
+kubectl get pods -n kube-system
+
+Run docker container
+docker inspect bridge
+ifconfig -a
+brctl show
+
+
+In Worker Node:
+By default when worker node is created cni0 will be created
+brctl show
+
+Flannel:
+
+Create deployment in master and check where pods are launched and check brctl show
+var/run/flannel/subnet.env
+kubectl get configmap -n kube-system
+kubectl edit configmap flanel
+kubectl edit flannel
+kubectl delete pod app=flannel -n kube-system
+
+
+15:
+kubectl get pods --server IP:PortNumber(6443)
+netstat
+cat /etc/kubernetes/admin.conf
+
+kubectl get pods --server --kubeconfig admin.yml
+
+cat /etc/hosts
+cat /etc/resolve.conf
+
+

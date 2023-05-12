@@ -1,0 +1,60 @@
+Service Mesh | Istio
+
+minikube
+kubectl get pods
+kubectl describe etcd-minikube
+
+Kubernetes Migration
+
+kubectl exec -n kube-system -it etcd-minikube --sh
+
+etcdctl
+
+exit
+
+kubect
+
+kubectl describe pod etcd-minikube -n kube-system
+
+kubectl exec -n kube-system -it etcd-minikube --sh
+
+cd /var/lib/
+
+https://etcd.io/docs/v3.4/dev-guide/interacting_v3/
+
+
+etcdctl --cacert="/var/lib/minikube/certs/etcd/ca.crt" --cert="/var/lib/minikube/certs/etcd/server.crt"  --key="/var/lib/minikube/certs/etcd/server.key"  put city jaipur
+
+etcdctl --cacert="/var/lib/minikube/certs/etcd/ca.crt" --cert="/var/lib/minikube/certs/etcd/server.crt"  --key="/var/lib/minikube/certs/etcd/server.key"  get city
+
+etcdctl --cacert="/var/lib/minikube/certs/etcd/ca.crt" --cert="/var/lib/minikube/certs/etcd/server.crt"  --key="/var/lib/minikube/certs/etcd/server.key"  get / --prefix --keys-only
+
+
+
+https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+
+etcdctl --cacert="/var/lib/minikube/certs/etcd/ca.crt" --cert="/var/lib/minikube/certs/etcd/server.crt"  --key="/var/lib/minikube/certs/etcd/server.key"  snapshot save  /tmp/hi.db
+
+etcdctl --cacert="/var/lib/minikube/certs/etcd/ca.crt" --cert="/var/lib/minikube/certs/etcd/server.crt"  --key="/var/lib/minikube/certs/etcd/server.key"  snapshot status  /tmp/hi.db
+
+etcdctl --cacert="/var/lib/minikube/certs/etcd/ca.crt" --cert="/var/lib/minikube/certs/etcd/server.crt"  --key="/var/lib/minikube/certs/etcd/server.key"  snapshot restore   /tmp/hi.db  --data-dir=/tmp
+
+
+
+kubectl describe pod etcd-minikube -n kube-system
+
+
+kubcetl top pods
+
+kubectl apply -f https://k8s.io/examples/application/php-apache.yaml
+
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+
+kubectl get hpa
+
+kubectl top pods
+
+# Run this in a separate terminal
+# so that the load generation continues and you can carry on with the rest of the steps
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://php-apache; done"
+

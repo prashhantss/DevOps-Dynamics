@@ -1,0 +1,98 @@
+Jobs / CronJob / Batch
+
+kubectl get jobs
+kubectl get cronjob
+
+echo $SHELL
+for i in 1 2 3 4 5 6; do echo $i; done
+
+echo $i
+
+kubectl create deployment --image=centos:7 -o yaml > j.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: myd
+  name: myd
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myd
+    template:
+      metadata:
+        labels:
+          app: myd
+    spec:
+      containers:
+      - name: centos
+        image: centos:7
+        command:
+          - [ "expr" , "2" , "+" , " 4" ]
+      restartPolicy: Always / Never
+
+kubectl apply 
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: myd
+  name: myd
+  namespace: default
+spec:
+    completions: 4
+    parallelism: 2
+    template:
+      metadata:
+        labels:
+          app: myd
+    spec:
+      containers:
+      - name: centos
+        image: centos:7
+        command:
+          - [ "expr" , "2" , "+" , " 4" ]
+      restartPolicy: Never
+
+kubectl get jobs
+kubectl logs jobname
+
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  labels:
+    app: myd
+  name: myd
+  namespace: default
+spec:
+    schedule: " /2 * * * *"
+    jobTemplate:
+    spec:
+    completions: 4
+    parallelism: 2
+    template:
+      metadata:
+        labels:
+          app: myd
+    spec:
+      containers:
+      - name: centos
+        image: centos:7
+        command:
+          - [ "expr" , "2" , "+" , " 4" ]
+      restartPolicy: Never
+
+
+
+
+
+
+
+
+
+

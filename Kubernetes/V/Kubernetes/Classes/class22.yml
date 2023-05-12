@@ -1,0 +1,87 @@
+Helm-Chart/Package
+
+Helm v2 required tiller in Master
+
+wget https://get.helm.sh/helm-canary-linux-amd64.tar.gz
+tar -xvzf helm
+cp helm /usr/bin
+helm version
+
+Helm Custom Chart
+mkdir myweb
+cd myweb
+vi Chart.yaml, pod.yml
+apiVersion: v2
+name: mychart
+description: A Helm chart for my application
+version: 1.0.0
+appVersion: 1.0.0
+maintainers:
+  - name: John Doe
+    email: john.doe@example.com
+    url: http://www.example.com
+  - name: Jane Smith
+    email: jane.smith@example.com
+    url: http://www.example.com
+
+
+mkdir templates
+vi deploy.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: {{ .Values.replicaCount }} 
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-container
+          image: <your-docker-image>
+          ports:
+            - containerPort: 80
+
+helm list
+helm install myweb myweb/
+helm delete myweb
+
+service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: my-app
+  ports:
+    - name: http
+      port: 80
+      nodePort: {{ .Values.myservice.port }}
+      targetPort: 80
+  type: {{ .Values.myservice.type }}
+
+update version
+
+helm upgrade myweb/
+helm history myweb
+helm rollback myweb 1
+
+values.yml
+replicaCount: 3
+myservice:
+  type: NodePort
+  port: 32767
+
+helm upgrade myweb/
+helm upgrade myweb/ --set replicaCount=5 --set myservice
+helm repo list
+helm repo add truecharts https://charts.truecharts.org/
+helm search hub wordpress
+helm install my-wordpress truecharts/wordpress --version 1.1.19
+

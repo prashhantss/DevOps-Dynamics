@@ -1,0 +1,236 @@
+CRI-O / PODMAN
+
+docker info | grep runtime
+
+container = Process
+
+docker run -it --name os100 centos
+ps -aux
+ifconfig
+Base-OS - ps -aux | grep bash
+docker history centos
+docker inspect os100 | grep pid
+kill -9 9104
+
+
+lsns | grep /bin/bash
+
+While runc is a powerful tool, it is typically used as a low-level component by higher-level container runtimes such as Docker, containerd, and CRI-O. These higher-level runtimes provide a more user-friendly interface and additional features that simplify container management and orchestration.
+
+
+ps aux | grep containerd
+
+gvisor | Kat | microvm
+
+yum install runc
+runc list
+
+mkdir ws
+runc spec
+
+package main
+import "os"
+import "fmt"
+func main() 
+{
+fmt.Println("os.Hostname")
+}
+
+yum install go -y
+go build -o lw && ./lw
+
+
+vi config.json
+"args": [
+        "ls"
+]
+
+mkdir rootfs
+mv lw rootfs
+
+runc list
+lsns
+
+vi config.json >> "terminal": false
+
+runc create myc1
+runc list
+ps aux | grep 16841
+ifconfig
+nscenter -u -n -t 16841 
+ifconfig
+ps aux
+exit
+runc list
+runc start myc1
+runc -h
+
+OCI
+
+yum install podman
+podman version
+podman images
+podman pull httpd
+podman run -dit httpd
+podman ps
+
+
+To set up a Kubernetes cluster with CRI-O as the container runtime, you can follow these step-by-step instructions:
+
+1. Provisioning the Cluster Nodes:
+   - Set up multiple Linux machines (physical or virtual) that meet the Kubernetes system requirements.
+   - Ensure that the machines have network connectivity between them.
+
+2. Install Container Runtime Interface (CRI-O) on each Node:
+   - Follow the official CRI-O installation guide (https://cri-o.io/) specific to your operating system to install CRI-O on each node.
+   - Configure CRI-O to start on boot.
+
+OS=xUbuntu20.04
+VERSION=1.20
+
+cat >>/etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list<<EOF
+deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /
+EOF
+
+cat >>/etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list<<EOF
+deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /
+EOF
+
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key --keyring
+/etc/apt/trusted.gpg.d/libcontainers.gpg.add
+
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | apt-key --keyring
+/etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg.add -
+
+apt-get update
+apt install -qq -y cri-o cri-o-runc cri-tools
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now crio
+sudo systemctl start crio
+sudo systemctl ststus crio
+
+crictl
+crictl pull httpd
+crictl images
+
+3. Install Kubernetes on the Control Plane Node:
+   - Install `kubeadm`, `kubelet`, and `kubectl` on the control plane node by following the official Kubernetes installation guide (https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/).
+   - Initialize the cluster using `kubeadm init` and follow the on-screen instructions. Make note of the join command provided at the end of the initialization.
+
+4. Configure kubeconfig on the Control Plane Node:
+   - Run the following command on the control plane node to create a kubeconfig file:
+     ```bash
+     mkdir -p $HOME/.kube
+     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+     sudo chown $(id -u):$(id -g) $HOME/.kube/config
+     ```
+
+5. Join Worker Nodes to the Cluster:
+   - Run the join command obtained from `kubeadm init` on each worker node to join them to the cluster.
+
+6. Verify Cluster Setup:
+   - On the control plane node, run `kubectl get nodes` to verify that all nodes are in the "Ready" state.
+
+At this point, you have a Kubernetes cluster set up with CRI-O as the container runtime. You can proceed with deploying and managing your applications on the cluster using Kubernetes manifests and commands.
+
+
+
+oR
+
+OS=xUbuntu_20.04
+VERSION=1.20
+cat >>/etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list<<EOF
+deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /
+EOF
+
+cat >>/etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list<<EOF
+deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /
+EOF
+
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -
+curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg add -
+
+
+apt update
+
+
+apt install -qq -y cri-o cri-o-runc cri-tools
+
+systemctl daemon-reload
+systemctl enable --now crio
+
+
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+apt install -qq -y kubeadm=1.20.5-00 kubelet=1.20.5-00 kubectl=1.20.5-00
+
+
+kubeadm init --apiserver-advertise-address=172.16.16.100 --pod-network-cidr=192.168.0.0/16
+
+cat >>/etc/modules-load.d/crio.conf<<EOF
+overlay
+br_netfilter
+EOF
+
+
+modprobe overlay
+modprobe br_netfilter
+
+
+cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables  = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+
+sysctl --system
+
+
+cat >>/etc/crio/crio.conf.d/02-cgroup-manager.conf<<EOF
+[crio.runtime]
+conmon_cgroup = "pod"
+cgroup_manager = "cgroupfs"
+EOF
+
+
+systemctl daemon-reload
+systemctl enable --now crio
+systemctl restart crio
+
+
+sed -i '/swap/d' /etc/fstab
+swapoff -a
+systemctl disable --now ufw
+
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+
+kubectl get pods
+kubectl get nodes
+
+kubectl describe nodes NodeName
+
+kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml
+
+kubeadm token create --print-join-command
+
+kubectl get nodes
+
+ps aux | grep kubelet
+
+crictl ps
+
+crictl images
+
+kubectl create deployment myd --image=httpd
+
+kubectl get pods -o wide
+
+crictl exec -it containername sh
+

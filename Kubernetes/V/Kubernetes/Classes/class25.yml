@@ -1,0 +1,125 @@
+Network Policies:
+
+kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem --node-name=master
+
+kubeadm join --node-name node1
+
+kubeadm join --node-name node2
+
+kubectl get pods -n kube-system
+
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+
+kubectl get nodes
+
+kubectl get pods -n kube-system
+
+ps -aux | grep kubelet
+
+cat /etc/cni/net.d/10-weave.conflist
+
+ls /opt/cni/bin/
+
+ps -aux | grep weave  #Uses IPAM
+
+kubectl create deployment myd --image=vimal13/apache-webserver-php --replicas=3
+
+kubectl get deployment
+
+kubectl expose deployment myd --port=80  --type=NodePort
+
+Access App in browser
+
+kubectl get networkpolicy
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: myfirewall
+
+kubectl apply -f np.yml
+
+Access pod in browser/by default all traffic is blocked
+
+kubectl describe networkpolicy myfirewall
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: myfirewall
+spec:
+  policyTypes:
+  - Ingress
+  ingress:
+  - {}
+  - podSelector: {} 
+
+describe network policy and and check it will allow any traffic
+
+kubectl create deployment myd1 --image=httpd
+
+kubectl expose deployment myd1 --port=80  --type=NodePort
+
+kubectl get svc curl deployments and check
+
+kubectl get pod --show-labels
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: myfirewall
+spec:
+  podSelector:
+    matchLabels:
+      app: myapp
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - protocol TCP
+    port: 85
+
+describe network policy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

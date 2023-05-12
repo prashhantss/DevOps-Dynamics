@@ -1,0 +1,114 @@
+CoreDNS/ConfigMap
+
+kubectl get cm
+
+kubectl create deploy myd --image=vimal13/apache-web-server-php
+
+kubectl exec  -it podname --bash
+
+vi web.conf
+Listen 85
+
+
+
+kubectl create configmap mywebconf --from-file=web.conf
+kubectl get cm
+kubectl describe cm mywebconf
+kubectl get deployments
+kubectl edit deploy myd
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      containers:
+      - name: apache-container
+        image: vimal13/apache-web-server-php
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: apache-config-volume
+          mountPath: /etc/httpd/conf.d
+      volumes:
+      - name: apache-config-volume
+        configMap:
+          name: mywebconf
+
+
+kubectl exec -it podname --bash
+netstat -tlnp
+kubecctl get deployments
+
+kubectl describe deploy myd
+kubectl descrie cd kube-flannel-cfg
+
+
+CoreDNS:
+
+BIND (Berkeley Internet Name Domain) is a popular open-source DNS server software that can be deployed 
+in Kubernetes to provide DNS services to applications running on the cluster.
+
+DNS Server:
+ifconfig eth0
+wget https://github.com/coredns/coredns/releases/download/v1.10.1/coredns_1.10.1_linux_amd64.tgz
+tar -xvzf coredns
+Port number 53/UDP
+netstat -tlnp | grep 53
+
+vi /etc/mydb
+1.1.1.1 abc.com
+2.2.2.2 xyz.com
+172.32.43.12 myip
+
+vi mycoredns.conf
+. {
+hosts /etc/mydb
+}
+
+./coredns -conf mycoredns.conf
+
+netstat -ulnp | grep 53
+
+DNS Client:
+vi /etc/resolve.conf
+search .com
+nameserver DNSServerIP
+
+ping abc.com
+nslookup abc.com
+nslookup abc
+
+kubectl get deploy -n kube-system
+kubectl describe deploy coredns -n kube-system
+kubectl get cm -n kube-system
+alias k=kubectl
+k get pods
+k delete all --all
+k create ns tech
+k create ns hr
+k create deployment myd1 --image=vimal13/apache-web-server-php -n tech --replicas=2
+k get pods -n tech
+k expose deploy myd1 --port=80 -n tech
+k get svc -n tech #loadbalancer
+k create deployment myd2 --image=vimal13/apache-web-server-php -n hr --replicas=2
+k expose deploy myd2 --port=80 -n hr
+k get svc -n hr #loadbalancer
+k get svc -n kube-system  #dns-server
+kubectl -n tech exec -it myd1 --bash
+cat /etc/resolve.conf
+curl http://myd1
+
+try to connect other namespace pod using FQDN names and IPS
+
+k describe cm coredns -n kube-system
+

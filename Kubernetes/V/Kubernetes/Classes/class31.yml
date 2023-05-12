@@ -1,0 +1,163 @@
+Security Constraints:
+
+kubectl create deployment myd --image=vimal13/apache-webserver-php
+
+kubectl get pods
+
+kubectl exec -it myd -sh
+
+id 
+
+ps -aux
+
+sleep 60 &
+
+ps -aux
+
+kubectl describe pod
+
+
+SecurityContext
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo
+spec:
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+  volumes:
+  - name: sec-ctx-vol
+    emptyDir: {}
+  containers:
+  - name: sec-ctx-demo
+    image: busybox
+    command: ["sh", "-c", "sleep 1h"]
+    volumeMounts:
+    - name: sec-ctx-vol
+      mountPath: /data/demo
+    securityContext:
+      allowPrivilegeEscalation: false
+
+kubectl apply
+kubectl get pods
+kubectl exec -it security-context-demo --sh
+id
+ps -aux
+ps
+date 1212121212
+ifconfig eth0 1.1.1.1
+
+
+Standalone 
+import time
+time.sleep(30000)
+
+python3 time.py
+
+ps aux | grep time.py
+cd /proc/2981
+ls
+vi status
+cap
+
+Any process created by program can do anything on the device
+
+
+Security Context with Capabilities:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo4
+spec:
+  containers:
+    - name: sec-ctx-demo4
+      image: gcr.io/google-samples/node-hello:1.0
+      securityContext:
+        capabilities:
+          add: ["NET_ADMIN", "SYS_TIME"]
+
+kubectl apply
+kubectl get pods
+kubectl exec -it security-context-demo4 --sh
+date 1212121212123
+ps aux
+cd /proc/1
+vi status
+ip addr show
+ip addr add 1.1.1.1/24 dev eth0
+
+
+
+
+Resource limits and Quotas:
+
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+spec:
+  containers:
+    - name: app
+      image: images.my-company.example/app:4
+      resources:
+        requests:
+          cpu: "250m"
+          memory: "64Mi"
+        limits:
+          cpu: "500m"
+          memory: "128Mi"
+    - name: log-aggregator
+      image: images.my-company.example/log-aggregator:v6
+      resources:
+        requests:
+          cpu: "250m"
+          memory: "64Mi"
+        limits:
+          cpu: "500m"
+          memory: "128Mi"
+
+
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: resource-limits
+spec:
+  limits:
+    type: container
+    default:
+      cpu: "1"
+      defaultRequest:
+        cpu: "0.5"
+
+kubctl apply 
+kibetl get limitrange
+kubectl describe limitrange
+
+
+kubectl get quota
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: resource-quota
+spec:
+  hard:
+    pods: "10"
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "4"
+    limits.memory: 4Gi
+    nvidia.com/gpu: 1
+
+
+kubectl create quota
+
+nvidia.com/gpu: 1
+
+kubectl create quota resource-quota --hard=pods=10,requests.cpu=2,requests.memory=2Gi,limits.cpu=4,limits.memory=4Gi
+

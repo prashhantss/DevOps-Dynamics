@@ -1,0 +1,101 @@
+Deployment: 
+
+Selectors: 
+
+Equality Based:
+kubectl get pods --show-lables
+kubectl get pods --show-lables -l "env=prod"
+kubectl get pods --show-lables -l "region=us"
+kubectl get pods --show-lables -l "region!=us"
+kubectl get pods --show-lables --selector "region=IN"
+
+Set Based:
+kubectl get pods --show-lables --selector "region in (IN)"
+kubectl get pods --show-lables --selector "region in (IN, US), team in (team1)"
+kubectl get pods --show-lables --selector "region notin (IN, US)"
+
+RC : Equality Based
+RS : Set based / Equality based
+Deployment :  Supports ecreate and rolling update 
+
+RepliaSet:
+
+Equality-Based
+
+apiVersion: apps/v1
+kind: RepliaSet
+metadata:
+  name: myweb-rs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      env: prod
+  template:
+    metadata:
+      name: webpod4
+      labels:
+        env: prod
+    spec:
+      containers:
+      - name: webc1
+        image: "vimal13/apche-webserver-php"
+
+
+With Set Based Selectors:
+apiVersion: apps/v1
+kind: RepliaSet
+metadata:
+  name: myweb-rs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      env: prod
+    matchExpresiions:
+      - { key: team, Operator: In, values: [ team1, team2 ] }
+      - { key: tier, Operator: In, values: [ frontend, backend ] }
+  template:
+    metadata:
+      name: webpod4
+      labels:
+        env: prod
+        team: team1
+        tier: frontend
+    spec:
+      containers:
+      - name: webc1
+        image: "vimal13/apche-webserver-php"
+
+kubectl describe RS
+
+kubectl create deployment myd --image=httpd
+kubectl describe deploy myd --show-lables
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myweb-deploy
+spec:
+  type: recreate
+  replicas: 3
+  selector:
+    matchLabels:
+      env: prod
+    matchExpresiions:
+      - { key: team, Operator: In, values: [ team1, team2 ] }
+      - { key: tier, Operator: In, values: [ frontend, backend ] }
+  template:
+    metadata:
+      name: webpod4
+      labels:
+        env: prod
+        team: team1
+        tier: frontend
+    spec:
+      containers:
+      - name: webc1
+        image: "vimal13/apche-webserver-php
+
+Pause/Unpause

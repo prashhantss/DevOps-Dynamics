@@ -1,0 +1,63 @@
+
+kubectl get deployments
+kubectl apply -f pv.yml
+kubectl expose deploy myd --port=80 --type=NodePort
+curl http://NodeIP
+kubectl delete pod }
+
+
+
+PVC and PV:
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mypvc
+spec:
+  storageClassName: ""
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mypv
+spec:
+  storageClassName: ""
+  capacity:
+      storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: "/mydata"
+  persistentVolumeReclaimPolicy: Recycle
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myd
+spec:
+  type: recreate
+  replicas: 3
+  selector:
+    matchLabels:
+      env: prod
+  template:
+    metadata:
+      name: wpod
+      labels:
+        env: prod
+    spec:
+      Volumes:
+        name: mypod-pvc
+        persistentVolumeClaim:
+          claimName: mypvc
+      containers:
+      - name: webc1
+        image: "vimal13/apche-webserver-php"
+        volumeMounts:
+          mountPath: /var/www/html
+          name: mypod-pvc

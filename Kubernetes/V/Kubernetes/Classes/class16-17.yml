@@ -1,0 +1,77 @@
+Kubernetes Multi-Tenancy
+
+Action=Verb
+
+Role Based Access Control:
+
+Master:
+kubectl cluster-info
+
+Kubernetes control plane is a set of components that are responsible for managing the overall state of a kubernetes cluster.
+
+User/password based
+User/Key based
+Certificate based (recommended authentication method)
+
+Client:
+1. Private key(Openssl to create)
+mkdir/kubews
+openssl genrsa -out client.key 1024
+cat client.key
+openssl req -new -key client.key -out client.csr -subj "/CN=kube-client"
+copy client.csr in cd /etc/kubernetes/pki/
+
+Master:
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365 -sha256
+copy client.crt to your client PC
+
+Client:
+kubectl config view
+kubectl config -h
+get ca.crt file from master
+kubectl config --kubeconfig client.kubeconfig set-cluster awskubecluster --server https://IP:6443 --certificate-authority=ca.crt
+kubectl config view --kubeconfig client.kubeconfig
+kubectl get pods --kubeconfig client.kubeconfig
+kubectl config --kubeconfig client.kubeconfig set-credintials client --client-certificate client.crt --client-key client.key
+kubectl config view --kubeconfig client.kubeconfig
+kubectl get pods --kubeconfig client.kubeconfig
+kubectl config get-clusters --kubeconfig vimal.kubeconfig
+kubectl config set-context client@awskubecluster --user=client --cluster awskubecluster --kubeconfig client.kubeconfig
+kubectl config get-contexts --kubeconfig client.kubeconfig
+kubectl get pods --kubeconfig client.kubeconfig
+kubectl config current-context --kubeconfig client.kubeconfig
+kubectl config use-context client@awskubecluster --kubeconfig client.kubeconfig
+kubectl get pods --kubeconfig client.kubeconfig
+
+Master:
+openssl x059 -in apiserver.crt -text
+rm /etc/kubernetes/pki/apiserver.*
+kubeadm init phase certs all --apiserver-advertise-address=0.0.0.0 --apiserver-cert-extra-sans=publicIPofMaster
+openssl x059 -in apiserver.crt -text
+docker ps | grep api
+docker rm -f `docker ps -q -f 'name=k8s_kube_apiserver*'`
+
+Client:
+kubectl get pods --kubeconfig client.kubeconfig
+
+Master:
+kubectl get ns
+kubectl create ns tech
+kubectl get roles -n tech
+kubectl create role client-tech --resource=pods --verb=get, list -n tech
+kubectl get rolebinding -n tech
+kubectl create rolebinding client-tech-rb --role client-tech --user=client -n tech
+
+
+Client:
+kubectl get pods --kubeconfig client.kubeconfig --namespace tech
+create deployment
+
+Master:
+describe role and rolebinding and verify permissions
+kubectl edit role client-tech -n tech [resources:pods, deployments, service, rs and verbs:'*']
+
+Client:
+Create deployment
+
+

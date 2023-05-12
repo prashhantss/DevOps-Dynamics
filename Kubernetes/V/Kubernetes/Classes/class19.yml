@@ -1,0 +1,62 @@
+FrontEnd
+Namespace:
+user: webuser
+
+Backend
+namespace:
+user: dbuser
+
+
+Cluster:
+user: sadmin [StorageAdmin]
+clusterRole:
+clusterRoleBinding: 
+
+Workspace:
+Kubeconfig file
+CRT and Key File
+
+
+MasterNode:
+cd /etc/kubernetes/pki/
+openssl genrsa -out sadmin.key 1024
+openssl req -new -key sadmin.key -out sadmin.csr -subj "/CN=sadmin/O=Storage"
+openssl x509 -req -in sadmin.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out sadmin.crt -days 365 -sha256
+cp ~/.kube/config sadmin.kubeconfig
+vi sadmin.kubeconfig
+
+      server: https://PublicIp:6443
+    name: kubernetes
+- context:
+    cluster: kubernetes
+    user: sadmin
+  name: sadmin@kubernetes
+current-context: sadmin@kubernetes
+users:
+  - name: sadmin
+    user:
+      client-certificate-data: cat sadmin.crt | base64 -w0
+      client-key-data: cat sadmin.key | base64 -w0
+
+Transfer sadmin.kubeconfig file to Workspace
+
+
+Workspace:
+kubectl get pods --kubeconfig sadmin.kubeconfig
+kubectl get pv --kubeconfig sadmin.kubeconfig
+kubectl api-resources
+
+
+Master:
+kubectl get clusterrole
+kubectl create clusterrole mysadminrole --verb= get,list,watch,create --resource=pv
+kubectl create clusterrolebinding myclusterrolebindingforstorage --clusterrole=mysadminrole --user=sadmin
+kubernetes describe clusterrole cluster-admin
+kubectl describe clusterrolebinding cluster-admin
+
+
+Workspace:
+kubectl get pv --kubeconfig sadmin.kubeconfig
+
+
+

@@ -1,0 +1,31 @@
+Kubernetes API
+
+https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.22/#container-v1-core
+
+Client:
+cd /etc/kubernetes/pki/
+curl --cacert ca.crt https://IP:6443
+curl --cacert ca.crt https://IP:6443/version
+curl --cacert ca.crt https://IP:portnumber/api/v1/namespaces/default/pods
+.kube
+curl -h | grep cert
+curl -h | grep key
+
+cat /root/.kube/config [*y$] Cert
+vi /etc/kubernetes/pki/admin.crt [*p]
+cat /root/.kub e/config [*y$] Key
+vi /etc/kubernetes/pki/admin.key [*p]
+cat admin.crt | base64 -d > admin.crt
+cat admin.key | base64 -d > admin.key
+
+curl --cert admin.crt --key admin.key --cacert ca.crt https://IP:portnumber/api/v1/namespaces/default/pods
+curl --cert admin.crt --key admin.key --cacert ca.crt https://IP:portnumber/api/v1/namespaces/tech/pods
+curl --cert admin.crt --key admin.key --cacert ca.crt https://IP:portnumber
+curl --cert admin.crt --key admin.key --cacert ca.crt https://IP:portnumber/api
+curl --cert admin.crt --key admin.key --cacert ca.crt https://IP:portnumber/api/v1
+curl --cert admin.crt --key admin.key --cacert ca.crt https://IP:portnumber/api/v1 | less
+kubectl get roles -n tech
+kubectl edit roles client-tech -n tech
+
+
+
