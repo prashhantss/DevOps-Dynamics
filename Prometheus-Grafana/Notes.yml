@@ -1,0 +1,321 @@
+Install Prometheus and start Prometheus:
+1. Download Prometheus: 
+2. Extract the Prometheus files: 
+3. Configure Prometheus:
+  - job_name: 'my_target'
+    static_configs:
+      - targets: ['target_ip:port']
+4. Start Prometheus:
+     ./prometheus
+5. Access Prometheus web interface: http://localhost:9090
+
+
+
+Configure And Setup Node Exporter in Target Nodes:
+1. Download Node Exporter: 
+2. Extract Node Exporter: 
+3. Start Node Exporter: 
+     ./node_exporter
+Node Exporter will start listening on the default port 9100.
+
+4. Verify Node Exporter: http://localhost:9100/metrics
+
+metric_names()
+node_cpu_seconds_total{instance="<instance-name>"} / ignoring(cpu) group_left sum(node_cpu_seconds_total{instance="<instance-name>"})
+
+
+
+Expose Docker metrics and retrieve them using Prometheus:
+
+1. Configure Docker Daemon: Modify the Docker Daemon configuration /etc/docker/daemon.json
+
+   {
+     "metrics-addr" : "0.0.0.0:9323",
+     "experimental" : true
+   }
+
+
+2. Configure Prometheus: 
+     - job_name: 'docker'
+       static_configs:
+         - targets: ['docker-host:9323']
+
+3. Restart Prometheus: 
+4. Verify Docker metrics in Prometheus:fttp://<prometheus-ip>:9090
+
+   - List available Docker metrics:
+     metric_names()
+
+
+   - Show the total number of running Docker containers:
+     count(container_running_total)
+
+
+   - Monitor CPU usage of a specific Docker container:
+     sum(rate(container_cpu_usage_seconds_total{container_name="<container-name>"}[5m])) by (container_name)
+
+
+   - Monitor memory usage of a specific Docker container:
+     container_memory_usage_bytes{container_name="<container-name>"}
+
+
+Setup Grafana:
+
+1. Download and Install Grafana:
+https://grafana.com/grafana/download
+
+2. Start Grafana:
+       sudo systemctl start grafana-server
+
+3. Access Grafana Web Interface:
+http://localhost:3000
+- The default username and password are both "admin". Log in using these credentials.
+
+4. Configure Prometheus as a Data Source:
+   - Add a data source.
+   - Select "Prometheus" as the data source type.
+   - Configure the connection details for Prometheus, such as URL (e.g., `http://localhost:9090`)
+
+5. Explore Dashboards and Visualizations:
+   - Grafana provides a rich library of pre-built dashboards and visualizations.
+   - To import a dashboard, click on the "+" icon in the left sidebar and select "Import".
+   - Search the Grafana dashboard repository (https://grafana.com/grafana/dashboards)
+   - Copy the dashboard ID or JSON configuration and paste it into the "Import via panel JSON" field in Grafana.
+   - Customize the dashboard settings and click "Import" to add it to your Grafana instance.
+
+
+
+
+Install Prometheus and Grafana using Kubernetes:
+
+1. Create Prometheus Deployment:
+   kubectl create deployment myprom --image=vimal13/prometheus
+
+2. Expose Prometheus as a Service:
+   kubectl expose deployment myprom --port=9090 --target-port=9090 --type=NodePort
+
+3. Create Grafana Deployment:
+  kubectl create deployment mygraph --image=vimal13/grafana
+
+4. Expose Grafana as a Service:
+   kubectl expose deployment mygraph --port=3000 --target-port=3000 --type=NodePort
+
+
+  - job_name: 'node1'
+    static_configs:
+      - targets: ['target_ip:port']
+
+  - job_name: 'node1'
+    static_configs:
+      - targets: ['target_ip:port']
+
+  - job_name: 'docker'
+       static_configs:
+         - targets: ['docker-host:9323']  
+
+
+Start Node Exporters:
+./node_exporter
+./node_exporter &
+jobs
+fg
+nohup ./node_exporter
+
+Execute Below Queries in Prometheus:
+# node_memory_MemFree_bytes
+
+# node_memory_MemFree_bytes{job="node1"}
+
+# up{job="node1"}
+
+# up{job="node."}
+
+# up{job="node.|docker."}
+
+
+Regular Expressions:
+
+1. `.` (dot):
+   Matches any character except a newline.
+
+2. `*` (asterisk):
+   Matches zero or more occurrences of the preceding character or group.
+
+3. `+` (plus):
+   Matches one or more occurrences of the preceding character or group.
+
+4. `?` (question mark):
+   Matches zero or one occurrence of the preceding character or group.
+
+5. `[]` (character class):
+   Matches any single character within the brackets. For example, `[abc]` matches either 'a', 'b', or 'c'.
+
+6. `[^]` (negated character class):
+   Matches any single character not within the brackets. For example, `[^abc]` matches any character except 'a', 'b', or 'c'.
+
+7. `\d`:
+   Matches any digit (0-9).
+
+8. `\w`:
+   Matches any word character (alphanumeric character or underscore).
+
+9. `\s`:
+   Matches any whitespace character (space, tab, newline, etc.).
+
+10. `^` (caret):
+    Matches the start of a line.
+
+11. `$` (dollar sign):
+    Matches the end of a line.
+
+12. `()` (capturing group):
+    Groups multiple characters or patterns together, allowing quantifiers to be applied to them.
+
+13. `\` (backslash):
+    Escapes special characters, allowing them to be used as literal characters.
+
+14. `|` (pipe):
+    Acts as an OR operator, matching either the pattern on the left or the pattern on the right.
+
+
+Regular expression to find pip@mail.com
+
+# up{job="node.|docker[123]"}
+
+# node_filesystem_size_bytes
+
+# node_filesystem_size_bytes{device="/dev/sda1"}
+
+# node_filesystem_size_bytes{device="/dev/sda+"}
+
+# node_filesystem_size_bytes{device="/dev/sda+|/dev/mapper"}
+
+# node_filesystem_size_bytes{job="node1",device="/dev/sda+|/dev/mapper/.+"}
+
+# http_response_size_bytes_count
+
+# sum(http_response_size_bytes_count)
+
+# prometheus_http_response_size_bytes_count
+
+# sum(prometheus_http_response_size_bytes_count)  Gauge
+
+
+Configure Apache metrics:
+
+Configure Apache `httpd.conf` file:
+   - Open the Apache `httpd.conf` configuration file.
+   - Add or modify the following lines.
+
+LoadModule exporter_module /path/to/mod_exporter.so
+<Location /metrics>
+SetHandler server-status
+</Location>
+
+# apache-host/server-status
+
+3. Restart Apache:
+   - Restart the Apache service for the changes to take effect.
+
+4. Configure Prometheus to scrape Apache metrics:
+ - job_name: 'node1'
+         static_configs:
+           - targets: ['apache-host:80']
+            labels:
+              env: 'prod'
+ - job_name: 'node2'
+         static_configs:
+           - targets: ['apache-host:80']
+            labels:
+              env: 'dev'
+ - job_name: 'apache'
+         static_configs:
+           - targets: ['apache-host:9117']
+            labels:
+              env: 'prod'
+# up{env='prod'}
+
+# up{env='dev'}
+                                                
+docker run -dit vimal13/apache-_exporter -h
+
+docker run -dit --name apache-exporter -p 9117:9117 vimal13/apache_exporter --scrape_uri="http://apache-host/server-status"/?auto
+
+# apache_access_total
+
+# apache_access_total{env="prod"}
+
+# apache_connections
+
+# apache_cpuload
+
+# apache_sent_kilobytes_total
+
+# node_cpu_seconds_total
+
+# node_cpu_seconds_total{mode="idle"}
+
+# node_cpu_seconds_total{mode!="idle"}
+
+Aggregation
+
+# sum(node_cpu_seconds_total{mode!="idle"})
+
+# sum by(job)(node_cpu_seconds_total{mode!="idle"})
+
+# sum by(job,cpu)(node_cpu_seconds_total{mode!="idle"})
+
+# sum by (job)node_filesystem_files
+
+# sum without(mode)(node_cpu_seconds_total)
+
+# sum without(mode)(node_cpu_seconds_total)
+
+# sum by(job)(sum without(mode)(node_cpu_seconds_total))
+
+
+uname -r
+
+# node_uname_info
+
+# count by(release)(node_uname_info)
+
+# prometheus_http_requests_total
+
+# sum(prometheus_http_requests_total)
+
+# sum by(code)(prometheus_http_requests_total)
+
+# prometheus_http_requests_total{handler="/metrics"}
+
+# prometheus_http_requests_total{handler="/metrics"}
+
+# prometheus_http_requests_total{handler="/metrics"}{5m}
+
+# rate(prometheus_http_requests_total{handler="/metrics"}{5m})  Graph
+
+# rate(prometheus_http_requests_total{handler="/metrics"}{5d})
+
+# rate(prometheus_http_requests_total{handler="/metrics"}{10m}offset 20m)
+
+
+Grafana:
+
+Create Dashboard | Add New Panne | Pannel Title: | DataSource:Prometheus
+
+Query: 
+# rate(prometheus_http_requests_total{handler="/metrics"}[10m]
+
+Add New Panne | Pannel Title:Count Of Web Traffic
+
+Query: 
+# rate(prometheus_http_requests_total[5m])
+# rate(sum by(code)(prometheus_http_requests_total[5m])
+
+# count(up)   Value|Total
+
+# rate(apache_access_total)[5m] offset 10m) Value|Total|Refresh to Verify | Mode | 
+
+# Field | Add Thresholds
+
+
