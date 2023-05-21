@@ -1,0 +1,222 @@
+AZure 104
+
+Signup > Azure Account > Aefault AAD:
+
+TenantID, Directory Name, Domain Name (abcxyz@onmicrosoft.com)
+
+Default Directory:
+
+Activate Licence:
+-  Licences > All Products > Try/Buy
+
+
+Azure AD:
+-------------
+- To create group, policies and centralized management of users.
+- Uses modern authentication protocols for connectivity.
+- Provision of connecting on-premises AD with Azure AD.
+
+
+1. Users:
+--------------
+Create Users:
+
+Create Bulk Users:
+
+Users Sign-In Logs:
+
+Audit Logs:
+
+Deleted Users: Soft delete : Restore Within 30 Days
+
+Invite External User:
+
+
+2. Groups:
+---------------
+
+Group Types:
+	
+Microsoft 365 Groups: Used for 365 applications
+	
+Security Groups: Used in azure public environment
+Group Membership Type:
+i. Assigned: User added manually.
+ii. Dynamic User: User added automatically using user attributes. Min P1 P2 Licence required.
+iii. Dynamic Device: User added automatically using device attributes.	
+	
+
+3. Tenant / Directory = AAD
+-------------------------------
+Create Tenant.
+
+4. Multifactor Authentication:
+
+Authentication Methods:
+i. Something you know - Username/Password
+ii. Something You Have - OTP, Authenticator App, Call Verification
+iii. Something You Are - Biometrics
+
+How to configure MFA.
+i. Per user MFA : Enable and Enforce(Allows to use app password), Service Settings
+ii. Conditional Access Policy > Security > Condtional Access > New Policy
+
+
+4. Custom Domain Name:
+-----------------------
+
+5. Azure AD Connect/Hybrid Identity/AD Sync Service:
+----------------------------------------------------
+- Launch windows 2019 server/ vertual machine.
+- Server Manager : Add Roles and Features : Server Roles : ADDS and DNS
+- Promote this server as domain controller for domain
+	Add new forest : Root Domain Name : DSRM : 
+- Run : dsc.msa : Add users
+- Create user for AD connect : add in Enterprise Admin Group
+- AAD : Users : Assign Global Admin Roles
+- Install AD Connect in OnPrem DNS : Customize Settings
+- Password Hash Synchronization: username and passwordhash also will replicate
+- Password through authentication: Usename will replicate and during login validation will be sent back to adsync.
+- Add forest account : DRSM : UserPrincipalName : 
+- Password rightback : Replicated users will change password and returns back
+- Open AD connect if any troubleshoot required.
+- Synchronization Service Manager
+- Ad connect Health.
+
+Azure Storage:
+- Durable and highly available
+- Secure
+- Scalable
+- Managed
+- Accessible
+
+Types of Storage:
+Structured Data:
+Unstructured Data:
+Storage for virtual machine:
+										Blob Storage 	- Blob Containers	- Blobs
+										File Service 	- File Service		- Files And Folders
+Azure Subscription - Storage Accounts									
+										Table Storage 	- Tables			- Entities
+										Queue Storage	- Queues			- Messages
+
+- Azure uses three tier architecture:
+Front end layer
+Partition Layer
+Stream layer
+
+
+
+All storage accounts are encrypted using storage service encryption.
+
+Storage Account Types:
+-----------------------
+
+1. Standard: Backed by HDD and lowest cost per GB.
+2. Premium: Backed by SSD and offer low latency.
+Cannot convert standard to premium or vice versa.
+
+
+Blob Storage:
+-------------
+- Binary Lodge Object Storage
+- Accessed via HTTP/HTTPS protocol.
+- Stored unstructured data such as image,distributed access, video, audio...etc.
+
+i. Blocks blobs: composed of blocks and are ideal for storing text or binary files.
+
+ii. Append blobs: optimized for append operations and are ideal for storing loggng data from VMs.
+
+iii. Page blobs: Made up of 512 byte pages up to 8TB, and designed for frequent read/write operations. foundation of AZ IAAS disks and ideal for storing OS and Data disks.
+					
+
+File Service:
+--------------
+
+- Offers file share in cloud and accessible via SMB protocol.
+
+
+Table Storage:
+--------------
+- Used for structured data.
+- Accessed using OData protocol, LINQ queries, WCF data service, .net libraries.
+
+
+Azure Storage Queue:
+---------------------
+- Used to store large number of messages that can be accessed anywhere via authenticated calls using HTTP and HTTPS.
+
+- 250 storage account, each 5PiB.
+
+
+
+
+Demo: Create storage account
+
+
+LRS : Local Redundant Storage
+Multiple replicas accross data center.
+
+ZRS : Zone Redundant Storage
+Replicas across 3 zones.
+Synchronous write to all 3 zones.
+
+GRS: Geo Redundant Storage
+Multiple replicas across each of 2 regions.
+Synchronous to secondary region.
+
+RA-GRS : Read access
+Read access to secondary.
+
+GZRS: Geo Zone Redundant Sorage
+
+RA-GZRS - Read Access
+
+
+Azure Key Vault: To store keys, secrets, certificates.
+
+
+
+Azure Subscriptions: 
+Define cost management and billing boundary
+Logical unit of azure services
+
+- Enterprise agreement
+- Resellers
+- Partners
+- Personal Free Account
+
+
+
+Azure Advisor:
+
+
+Azure Cost Savings:
+- Azure reservations
+- Azure hybrid benifits
+- Azure credits
+- Regions
+
+Management groups: Root tenant management group
+- Consolidated cost analysis across all subscriptions.
+
+
+Azure resource tagging:
+Provides metadata of azure resources.
+
+
+
+
+RBAC: Role Based Access Control
+- Defines  
+
+
+
+
+
+
+
+
+
+
+
