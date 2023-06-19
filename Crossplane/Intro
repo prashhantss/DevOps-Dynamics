@@ -1,0 +1,19 @@
+Install Crossplane:
+  helm install crossplane --namespace crossplane-system crossplane-alpha/crossplane --set alpha.oam.enable=true
+  helm list -n crossplane-system
+  kubectl get all -n crossplane-system
+
+Install Crossplane Providers [AWS and Azure]:
+  kubectl crossplane install provider crossplane/provider-aws:alpha
+  kubectl crossplane install provider crossplane/provider-azure:alpha
+  kubectl get provider.pkg
+  kubectl describe provider provider-aws
+  kubectl create providerconfig.aws default
+  kubectl describe providerconfig.aws default
+  kubectl crossplane install configuration crossplane/getting-started-with-vpc:master
+  kubectl get configuration
+  kubectl describe configuration
+  kubectl get xrd
+  
+
+
